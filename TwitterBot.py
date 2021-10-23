@@ -35,8 +35,8 @@ def connect_to_endpoint(url, headers, params):
 users = {
     "musk": {
         "since_id": 1409608806875615242
-    }
-    "cz_binance"{
+    },
+    "cz_binance" : {
         "since_id": 902926941413453824
     }
 }
