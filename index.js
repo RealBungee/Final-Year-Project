@@ -27,6 +27,7 @@ client.on('ready', () => {
     } else if (commandName === 'server') {
       await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
     } else if (commandName === 'user') {
+      getUserTweets();
       await interaction.reply('Elon Musk tweeted about DOGE in tweet: https://twitter.com/elonmusk/status/1454876031232380928 \n Bought DOGE with 15 minute hold period');
     } else if (commandName === 'settradeholdtime'){
       await interaction.reply('Trade hold time set to 15 minutes');
