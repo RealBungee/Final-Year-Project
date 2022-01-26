@@ -1,38 +1,72 @@
 //imports
 const needle = require('needle');
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, Message } = require('discord.js');
+const Discord = require('discord.js');
 const { token, twitter } = require('./config.json');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const reactionRole = require('./reactionRole');
+const client = new Client({ intents: [Intents.FLAGS.GUILDS], partials: ["MESSAGE", "CHANNEL", "REACTION"] });
 
 const userId = "44196397";
 const url = `https://api.twitter.com/2/users/${userId}/tweets`;
+const since = 1453839051379724289;
 
-const since = 1453839051379724289
+const prefix = '!';
+
+// const channel = client.channels.fetch('934165450084978718')
+//   .then(channel => console.log(channel.name));
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-  client.once('ready', () => {
-    console.log('Ready!');
-  });
+client.once('ready', () => {
+  console.log('Ready!');
+});
   
-  client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-  
-    const { commandName } = interaction;
-  
-    if (commandName === 'ping') {
-      await interaction.reply('Pong!');
-    } else if (commandName === 'server') {
-      await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
-    } else if (commandName === 'user') {
-      getUserTweets();
-      await interaction.reply('Elon Musk tweeted about DOGE in tweet: https://twitter.com/elonmusk/status/1454876031232380928 \n Bought DOGE with 15 minute hold period');
-    } else if (commandName === 'settradeholdtime'){
-      await interaction.reply('Trade hold time set to 15 minutes');
-    }
-  });
+client.on('messageCreate', message => {
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+  const args = message.content.slice(prefix.length).split(/\s+/);
+  const command = args.shift().toLocaleLowerCase();
+  if (command === 'reactionrole') {
+    client.commands.get('reactionrole').execute(message, args, Discord, client);
+  }
+});
+
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isCommand()) return;
+
+  const { commandName } = interaction;
+
+  if (commandName === 'ping') {
+    await interaction.reply('Pong!');
+  } else if (commandName === 'server') {
+    await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
+  } else if (commandName === 'user') {
+    getUserTweets();
+    await interaction.reply('Elon Musk tweeted about DOGE in tweet: https://twitter.com/elonmusk/status/1454876031232380928 \n Bought DOGE with 15 minute hold period');
+  } else if (commandName === 'settradeholdtime'){
+    await interaction.reply('Trade hold time set to 15 minutes');
+  }
+});
+
+// const reactionMessage = channel.messages.fetch("934166359552688159")
+//   .then(messages => console.log(messages.content))
+//   .catch(console.error);
+
+// const filter = (reaction, user) => {
+//   return reaction.emoji.name === 'KEKBye' && user.id === Message.author.id;
+// };
+
+// const collector = message.createReactionCollector({ filter, time: 15000});
+
+// collector.on('collect', (reaction, user) => {
+//   console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+// });
+
+// collector.on('end', collected => {
+//   console.log(`Collected ${collected.size} items`);
+// });
 
   const getUserTweets = async () => {
     let userTweets = [];
