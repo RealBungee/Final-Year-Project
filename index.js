@@ -1,11 +1,8 @@
 //imports
 const needle = require('needle');
 const { Client, Intents } = require('discord.js');
-const { token, twitter } = require('./config.json');
+const { token, clientId, guildId, twitter } = require('./config.json');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-
-const userId = "44196397";
-const url = `https://api.twitter.com/2/users/${userId}/tweets`;
 
 const since = 1453839051379724289
 
@@ -13,6 +10,7 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+  
   client.once('ready', () => {
     console.log('Ready!');
   });
@@ -34,6 +32,8 @@ client.on('ready', () => {
     }
   });
 
+  const userId = "44196397";
+  const url = `https://api.twitter.com/2/users/${userId}/tweets`;
   const getUserTweets = async () => {
     let userTweets = [];
 
