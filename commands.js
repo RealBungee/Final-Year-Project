@@ -5,6 +5,7 @@ const { clientId, guildId, token } = require('./config.json');
 
 const commands = [
 	new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
+	new SlashCommandBuilder().setName('reactmessage').setDescription('Sends a reaction monitor for reacts'),
 	new SlashCommandBuilder().setName('server').setDescription('Replies with server info!'),
 	new SlashCommandBuilder().setName('user').setDescription('Replies with user info!'),
 	new SlashCommandBuilder().setName('settradeholdtime').setDescription('Registers user for the Twitter Trading Bot'),

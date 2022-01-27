@@ -1,47 +1,26 @@
 //imports
+const fs = require('fs');
 const needle = require('needle');
-<<<<<<< HEAD
-const { Client, Intents } = require('discord.js');
-const { token, clientId, guildId, twitter } = require('./config.json');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-
-const since = 1453839051379724289
-=======
 const { Client, Intents, Message } = require('discord.js');
-const Discord = require('discord.js');
-const { token, twitter } = require('./config.json');
-const reactionRole = require('./reactionRole');
+const { token, clientId, guildId, twitter } = require('./config.json');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS], partials: ["MESSAGE", "CHANNEL", "REACTION"] });
 
-const userId = "44196397";
-const url = `https://api.twitter.com/2/users/${userId}/tweets`;
+client.commands = new Collection();
+
 const since = 1453839051379724289;
 
 const prefix = '!';
 
 // const channel = client.channels.fetch('934165450084978718')
 //   .then(channel => console.log(channel.name));
->>>>>>> cbb310a03febd317d0a1710ab4f7a5379a3552e2
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-<<<<<<< HEAD
-  
-  client.once('ready', () => {
-    console.log('Ready!');
-  });
-  
-  client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-  
-    const { commandName } = interaction;
-=======
 client.once('ready', () => {
   console.log('Ready!');
 });
->>>>>>> cbb310a03febd317d0a1710ab4f7a5379a3552e2
   
 client.on('messageCreate', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -59,7 +38,7 @@ client.on('interactionCreate', async interaction => {
   const { commandName } = interaction;
 
   if (commandName === 'ping') {
-    await interaction.reply('Pong!');
+    client.get('reactionrole').execute(message, args, Discord, client);
   } else if (commandName === 'server') {
     await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
   } else if (commandName === 'user') {

@@ -1,7 +1,10 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 module.exports = {
-    name: 'reactionrole',
-    description: 'Sets up reaction role monitoring for user registration',
-    execute(message, args, Discord, client){
+	data: new SlashCommandBuilder()
+		.setName('reactionmessage')
+		.setDescription('reactionmessage'),
+    async execute(message, args, Discord, client){
         const channel = '934165450084978718';
         const registerEmoji = ':kekbye:';
 
@@ -10,7 +13,7 @@ module.exports = {
             .setTitle('React to register for the bot');
 
         let MessageEmbed = await message.channel.send(embed);
-        MessageEmbed.react(registerEmoji);
+        await MessageEmbed.react(registerEmoji);
 
         client.on('messageReactionAdd', async (reaction, user) => {
             if(reaction.message.partial) await reaction.message.fetch();
@@ -25,4 +28,4 @@ module.exports = {
             }
         });
     }
-}
+};
