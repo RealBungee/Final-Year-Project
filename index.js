@@ -3,8 +3,7 @@ const fs = require('fs');
 const { token, twitter } = require('./config.json');
 const { Client, Intents, Collection, Message, ChannelManager, Channel } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS], partials: [Message, ChannelManager, Channel] });
-const userTimeline = require('./twitterFunctions/get-user-timeline.js');
-const twitterUserId = require('./twitterFunctions/get-user-id.js');
+const twitterFunctions = require('./twitterFunctions.js');
 
 //load in slash Commands
 client.commands = new Collection();
@@ -28,7 +27,7 @@ client.on('ready', async () => {
   const url = `https://api.twitter.com/2/users/${userId}/tweets`;
   const since = 1453839051379724289;
 //   userTimeline.getUserTimeline(twitter, url, userId);
-  twitterUserId.getRequest(twitter);
+//   twitterFunctions.getUser(twitter);
 });
 
 client.on('interactionCreate', async interaction => {
