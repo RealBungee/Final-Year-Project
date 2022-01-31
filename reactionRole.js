@@ -1,7 +1,7 @@
 module.exports = {
     name: 'reactionrole',
     description: 'Sets up reaction role monitoring for user registration',
-    execute(message, args, Discord, client){
+    async execute(message, args, Discord, client){
         const channel = '934165450084978718';
         const registerEmoji = ':kekbye:';
 

@@ -1,14 +1,13 @@
 // Get User objects by username, using bearer token authentication
 
 const needle = require('needle');
-const { twitter } = require('./config.json');
 
 const endpointURL = "https://api.twitter.com/2/users/by?usernames="
 
 //smiley's twitter users to check for new tweets
 const smileyUsers = ["rektproof", "elonmusk", "ShardiB2"]
 
-async function getRequest() {
+async function getRequest(twitter) {
 
     // These are the parameters for the API request
     // specify User names to fetch, and any additional fields that are required
@@ -29,22 +28,15 @@ async function getRequest() {
     })
 
     if (res.body) {
+        console.log(res.body);
         return res.body;
     } else {
         throw new Error('Unsuccessful request')
     }
 }
 
-(async () => {
 
-    try {
-        // Make request
-        const response = await getUserId.getRequest();
-        console.dir(response, {
-            depth: null
-        });
 
-    } catch (e) {
-        console.log(e);
-    }
-})();
+module.exports = {
+    getRequest
+}
