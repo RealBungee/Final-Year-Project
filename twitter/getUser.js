@@ -1,4 +1,4 @@
-const needle = require('needle');
+import needle from 'needle';
 
 async function getUser(twitter) {
 
@@ -31,6 +31,6 @@ async function getUser(twitter) {
     }
 }
 
-module.exports = {
+export  {
     getUser
 }

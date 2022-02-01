@@ -1,5 +1,5 @@
-const { reactionRegister } = require('./reactionRegister.js');
+import { reactionRegister } from './reactionRegister.js';
 
-module.exports = {
+export default {
     reactionRegister
 }

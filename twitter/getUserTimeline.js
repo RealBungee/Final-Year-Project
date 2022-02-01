@@ -1,4 +1,4 @@
-const needle = require('needle');
+import needle from 'needle';
 
 const getPage = async (params, options, nextToken, url) => {
     if (nextToken) {
@@ -62,6 +62,6 @@ const getUserTimeline = async(twitter, url, userId) => {
     console.log(`Got ${userTweets.length} Tweets from ${userName} (user ID ${userId})!`);
 }
 
-module.exports = {
+export {
     getUserTimeline
 }

@@ -1,7 +1,7 @@
-const { getUser } = require('./getUser');
-const { getUserTimeline } = require('./getUserTimeline');
+import { getUser } from './getUser.js';
+import { getUserTimeline } from './getUserTimeline.js';
 
-module.exports = {
+export default {
      getUserTimeline,
      getUser
 }
