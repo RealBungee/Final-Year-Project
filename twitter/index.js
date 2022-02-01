@@ -1,5 +1,5 @@
-const { getUser } = require('./get-user');
-const { getUserTimeline } = require('./get-user-timeline');
+const { getUser } = require('./getUser');
+const { getUserTimeline } = require('./getUserTimeline');
 
 module.exports = {
      getUserTimeline,
