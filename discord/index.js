@@ -1,5 +1,5 @@
-import { reactionRegister } from './reactionRegister.js';
+import { reactionCollector } from './reactionCollector.js';
 
 export default {
-    reactionRegister
+    reactionCollector
 }

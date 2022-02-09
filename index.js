@@ -1,6 +1,5 @@
 //discord imports
-import { readdirSync } from 'fs';
-import  data from './config.js';
+import  config from './config.js';
 import { Client, Intents, Collection, Message, ChannelManager, Channel } from 'discord.js';
 const client = new Client({ 
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES], 
@@ -12,6 +11,15 @@ import discord from './discord/index.js';
 import ping from './commands/ping.js';
 import server from './commands/server.js';
 import user from './commands/user.js';
+
+//Data structures
+var registeredUsers = [];
+
+
+//Load in files or data structures
+// import * as fileOfRegisteredUsers from './discord/registeredUsers.txt';
+// registeredUsers = fileOfRegisteredUsers.name;
+// console.log(registeredUsers);
 
 //load in slash Commands
 client.commands = new Collection();
@@ -26,7 +34,7 @@ client.on('ready', async () => {
   console.log(`Starting the reaction listener for message in react-to-register channel`);
 
   //starts the reaction listener for a message in react-to-register channel
-  discord.reactionRegister(client);
+  discord.reactionCollector(client, registeredUsers);
 
   //this is the part of code that will be used for retrieving tweets
   //it should be recursive and keep calling from array of users objects
@@ -34,8 +42,8 @@ client.on('ready', async () => {
   // const userId = "44196397";
   // const url = `https://api.twitter.com/2/users/${userId}/tweets`;
   // const since = 1453839051379724289;
-  // // twitter.getUserTimeline(data.twitterKeys, url, userId);
-  // twitter.getUser(data.twitterKeys);
+  // // twitter.getUserTimeline(config.twitterKeys, url, userId);
+  // twitter.getUser(config.twitterKeys);
 });
 
 client.on('interactionCreate', async interaction => {
@@ -53,4 +61,4 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-client.login(data.token);
+client.login(config.token);
