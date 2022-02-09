@@ -33,17 +33,18 @@ client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   console.log(`Starting the reaction listener for message in react-to-register channel`);
 
+ 
   //starts the reaction listener for a message in react-to-register channel
   discord.reactionCollector(client, registeredUsers);
 
   //this is the part of code that will be used for retrieving tweets
   //it should be recursive and keep calling from array of users objects
-
-  // const userId = "44196397";
-  // const url = `https://api.twitter.com/2/users/${userId}/tweets`;
-  // const since = 1453839051379724289;
-  // // twitter.getUserTimeline(config.twitterKeys, url, userId);
-  // twitter.getUser(config.twitterKeys);
+  const userId = "44196397";
+  const url = `https://api.twitter.com/2/users/${userId}/tweets`;
+  const since = 1453839051379724289;
+  twitter.getUserTimeline(config.twitter, url, userId);
+  twitter.getUser(config.twitter);
+  
 });
 
 client.on('interactionCreate', async interaction => {
