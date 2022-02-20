@@ -1,6 +1,5 @@
-import fs from 'fs';
+import  { saveObjects } from "./saveFile.js";
 async function reactionCollector(client, registeredUsers) {
-    
   const channel = await client.channels.fetch('934165450084978718')
   .catch(console.error);
   const message = await channel.messages.fetch('938131309019164675')
@@ -10,31 +9,27 @@ async function reactionCollector(client, registeredUsers) {
   const collector = await message.createReactionCollector({ filter });
 
   collector.on('collect', (reaction, user) => {
-    console.log(`Collected ${reaction.emoji.name} from ${user.username}`)
-    console.log(registeredUsers.length);
-    registerUser(registeredUsers, user);
+    console.log(`Collected ${reaction.emoji.name} from ${user.username}!`)
+    checkIfRegistered(user, registeredUsers);
   });
 }
 
-function registerUser(registeredUsers, user){
-  var isRegistered = false;
-  for(let i = 0; i< registeredUsers.length; i++){
-    if (registeredUsers[i].id === user.id) isRegistered = true;
+function checkIfRegistered(user, registeredUsers){
+  let isRegistered = false;
+  for(const u of registeredUsers){
+    if(u.id == user.id){ isRegistered = true;}
   }
 
   if(!isRegistered){
-    user.send(`Hello ${user.username}, thanks for registering to the bot`);
+    user.send(`Hello ${user.username}, thanks for registering to the bot!`);
+    user.flags = "";
+    user.banner = "";
+    user.accentColor = "";
     registeredUsers.push(user);
-    console.log(registeredUsers);
+    console.log(`Registered ${user.saveUsers}. Saving to file for backup.`);
+    saveObjects('./data/registeredUsers.json');
+    saveUsers(registeredUsers);
   }
-
-//   for(let i = 0; i< registeredUsers.length; i++){
-//     fs.writeFile("registeredUsers.txt", registeredUsers[i], (err) => {
-//       if (err) {
-//           console.log(err);
-//       }
-//   });
-//   }
 }
 
 export {
