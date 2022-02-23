@@ -18,19 +18,27 @@ const getPage = async (params, options, nextToken, url) => {
     }
 }
 
-const getUserTimeline = async(twitter, url, userId) => {
+//takes in twitter user object
+const getUserTimeline = async(token, user) => {
+    const url = `https://api.twitter.com/2/users/${user.id}/tweets`;
     let userTweets = [];
     // we request the author_id expansion so that we can print out the user name later
+
     let params = {
         "max_results": 5,
         "tweet.fields": "created_at",
-        "expansions": "author_id"
+        "expansions": "author_id",
+        "media.fields": "url"
+    }
+
+    if(!user.mostRecentTweet == ''){
+        params["since_id"] = user.mostRecentTweet;
     }
   
     const options = {
         headers: {
             "User-Agent": "v2UserTweetsJS",
-            "authorization": `Bearer ${twitter.bearerToken}`
+            "authorization": `Bearer ${token.bearerToken}`
         }
     }
   
@@ -59,7 +67,8 @@ const getUserTimeline = async(twitter, url, userId) => {
     console.dir(userTweets, {
         depth: null
     });
-    console.log(`Got ${userTweets.length} Tweets from ${userName} (user ID ${userId})!`);
+    console.log(`Got ${userTweets.length} Tweets from ${user.username} (user ID ${user.id})!`);
+    return userTweets;
 }
 
 export {

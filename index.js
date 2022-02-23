@@ -1,6 +1,7 @@
-//discord imports
+//API keys imports from config.js into config
 import  config from './config.js';
-import { Client, Intents, Collection, Message, ChannelManager, Channel} from 'discord.js';
+//discord imports
+import { Client, Intents, Collection, Message, ChannelManager, Channel, MessageEmbed} from 'discord.js';
 
 //My own function imports for twitter, discord and binance functionality
 import twitter from './twitter/index.js';
@@ -16,6 +17,13 @@ const client = new Client({
 
 //Data structures
 var registeredUsers = [];
+var trackedTwitterAccounts = [];
+var twitterTestAccount = {
+  id: '1256716686',
+  name: 'TestingAccount',
+  username: 'test66664599',
+  mostRecentTweet: ''
+}
 
 //load in slash Commands
 client.commands = new Collection();
@@ -40,17 +48,70 @@ client.on('ready', async () => {
     console.log(registeredUsers);
   }
   
-  //starts the reaction listener for a message in react-to-register channel
   console.log("Starting reaction listener for registrations");
   discord.reactionCollector(client, registeredUsers);
 
-  //this is the part of code that will be used for retrieving tweets
-  //it should be recursive and keep calling from array of users objects
-  // const userId = "44196397";
-  // const url = `https://api.twitter.com/2/users/${userId}/tweets`;
-  // const since = 1453839051379724289;
-  // // twitter.getUserTimeline(config.twitterKeys, url, userId);
-  // twitter.getUser(config.twitterKeys);
+});
+
+checkForNewTweets();
+
+function checkForNewTweets(){
+  setTimeout( async () => {
+    let tweets;
+    try{
+      tweets = await twitter.getUserTimeline(config.twitterKeys, twitterTestAccount);
+    } catch(error){
+      console.log(`Caught error while trying to get user timeline from: ${twitterTestAccount} \n ${error}`);
+    }
+    if(tweets != ''){
+      twitterTestAccount.mostRecentTweet = tweets[0].id;
+      checkForMentions(tweets, twitterTestAccount, "DOGE");
+      console.log(twitterTestAccount.mostRecentTweet);
+    }
+    checkForNewTweets();
+  }, 6000);
+}
+
+function checkForMentions(tweets, user, keyword){
+  console.log(`Checking for mentions of ${keyword} in retrieved tweets`);
+  for(let t of tweets){
+    if(t.text.toUpperCase().includes(keyword)){
+      console.log(`User: ${user.username} has mentioned ${keyword} in their tweet!`);
+      console.log('Attempting to notify the registered users');
+      notifyUsers(user, t);
+      //break because we only care about the most recent tweet 
+      break;
+    }
+  }
+}
+
+async function notifyUsers(user, tweet){
+  let fullTweet;
+  try{
+    fullTweet = await twitter.getTweets(tweet, config.twitterKeys);
+  } catch(error){
+    console.log("Error fetching tweet containing mention of keyword\n", error);
+  }
+  let tweetUrl = `https://twitter.com/${user.username}/status/${fullTweet.data[0].id}`;
+  const notificationEmbed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle('New tweet mention alert!')
+    .setDescription(`User: ${user.username} has mentioned DOGE in their tweet!`)
+    .setThumbnail(tweetUrl)
+    .addField('Tweet Link', tweetUrl, true);
+  for(let u of registeredUsers){
+    u.send({ embeds: [notificationEmbed]});
+  }
+}
+
+//this is how to handle private messages
+//will be used for adding people to follow, taking in exchange API's 
+client.on('messageCreate', async (message) => {
+  if(message.channel.type === 'DM'){
+    if(message.content.toLowerCase() === 'ping'){
+      message.author.send('pong');
+    }
+  }
 });
 
 client.on('interactionCreate', async interaction => {

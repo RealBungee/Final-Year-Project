@@ -12,6 +12,7 @@ async function reactionCollector(client, registeredUsers) {
     console.log(`Collected ${reaction.emoji.name} from ${user.username}!`)
     checkIfRegistered(user, registeredUsers);
   });
+  console.log("Reaction collector started!");
 }
 
 function checkIfRegistered(user, registeredUsers){
