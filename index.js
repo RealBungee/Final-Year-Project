@@ -10,7 +10,7 @@ import ping from './commands/ping.js';
 import server from './commands/server.js';
 import user from './commands/user.js';
 
-//create discord Client
+//create discord Client with needed Intents and Partials
 const client = new Client({ 
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES], 
   partials: [Message, ChannelManager, Channel] });
@@ -22,7 +22,7 @@ var twitterTestAccount = {
   id: '1256716686',
   name: 'TestingAccount',
   username: 'test66664599',
-  mostRecentTweet: ''
+  latestTweet: ''
 }
 
 //load in slash Commands
@@ -34,39 +34,44 @@ client.commands.set(user.data.name, {execute:user.execute});
 //Actions to perform when Bot comes online
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  console.log("Attempting to load registered users");
-  var tempUsers = [];
-  tempUsers = await discord.loadObjects('./data/registeredUsers.json');
 
-  if(Array.isArray(tempUsers)){
-    for(const element of tempUsers){
-      let userId = client.users.resolveId(element.id);
-      let user = await client.users.fetch(userId);
-      registeredUsers.push(user);
-    }
-    console.log("Successfully loaded in previously registered users");
-    console.log(registeredUsers);
-  }
-  
-  console.log("Starting reaction listener for registrations");
+  console.log("Attempting to load registered users.");
+  registeredUsers = await discord.loadUsers('./data/registeredUsers.json', client);
+
+  console.log("Starting reaction listener for registrations.");
   discord.reactionCollector(client, registeredUsers);
 
+  console.log(`Fetching latest tweets from users.`)
+  await getLatestTweet();
 });
 
-checkForNewTweets();
+//should call this at startup 
+async function getLatestTweet(){
+  let tweets;
+  try{
+    tweets = await twitter.getUserTimeline(config.twitterKeys, twitterTestAccount);
+  } catch(error){
+    console.log(`Error fetching most recent tweet: ${error}`)
+  }
+  if(tweets != ''){
+    twitterTestAccount.latestTweet = tweets[0].id;
+  }
+}
 
 function checkForNewTweets(){
   setTimeout( async () => {
     let tweets;
     try{
+      //this is for testing, in deployed app we should check user timelines of all
+      //tracked twitter users
       tweets = await twitter.getUserTimeline(config.twitterKeys, twitterTestAccount);
     } catch(error){
       console.log(`Caught error while trying to get user timeline from: ${twitterTestAccount} \n ${error}`);
     }
     if(tweets != ''){
-      twitterTestAccount.mostRecentTweet = tweets[0].id;
+      twitterTestAccount.latestTweet = tweets[0].id;
       checkForMentions(tweets, twitterTestAccount, "DOGE");
-      console.log(twitterTestAccount.mostRecentTweet);
+      console.log(twitterTestAccount.latestTweet);
     }
     checkForNewTweets();
   }, 6000);
@@ -79,7 +84,7 @@ function checkForMentions(tweets, user, keyword){
       console.log(`User: ${user.username} has mentioned ${keyword} in their tweet!`);
       console.log('Attempting to notify the registered users');
       notifyUsers(user, t);
-      //break because we only care about the most recent tweet 
+      //break because we only care about the most recent tweet (tweets saved from most recent to least) 
       break;
     }
   }
@@ -128,5 +133,7 @@ client.on('interactionCreate', async interaction => {
       return interaction.reply({ content: 'There was an error executing this command!', ephemeral: true});
   }
 });
+
+checkForNewTweets();
 
 client.login(config.token);

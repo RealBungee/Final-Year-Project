@@ -31,8 +31,8 @@ const getUserTimeline = async(token, user) => {
         "media.fields": "url"
     }
 
-    if(!user.mostRecentTweet == ''){
-        params["since_id"] = user.mostRecentTweet;
+    if(!user.latestTweet == ''){
+        params["since_id"] = user.latestTweet;
     }
   
     const options = {

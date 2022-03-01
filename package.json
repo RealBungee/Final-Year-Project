@@ -11,11 +11,13 @@
   "dependencies": {
     "@discordjs/builders": "^0.7.0",
     "@discordjs/rest": "0.1.0-canary.0",
+    "@keyv/mongo": "^2.0.0",
     "axios": "^0.24.0",
     "discord-api-types": "^0.24.0",
     "discord.js": "^13.6.0",
     "dotenv": "^10.0.0",
     "got": "^11.8.2",
+    "keyv": "^4.1.1",
     "needle": "^3.0.0",
     "oauth-1.0a": "^2.2.6"
   },
