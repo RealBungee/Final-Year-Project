@@ -20,16 +20,15 @@ function checkIfRegistered(user, registeredUsers){
   for(const u of registeredUsers){
     if(u.id == user.id){ isRegistered = true;}
   }
-
   if(!isRegistered){
     user.send(`Hello ${user.username}, thanks for registering to the bot!`);
-    user.flags = "";
-    user.banner = "";
-    user.accentColor = "";
-    registeredUsers.push(user);
-    console.log(`Registered ${user.saveUsers}. Saving to file for backup.`);
-    saveObjects('./data/registeredUsers.json');
-    saveUsers(registeredUsers);
+    let u = {
+      id: user.id,
+      allowTrading: false
+    }
+    registeredUsers.push(u);
+    console.log(`Registered ${user.username}. Saving to file for backup.`);
+    saveObjects('./data/registeredUsers.json', registeredUsers);
   }
 }
 

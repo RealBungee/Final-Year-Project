@@ -8,7 +8,6 @@ import twitter from './twitter/index.js';
 import discord from './discord/index.js';
 import ping from './commands/ping.js';
 import server from './commands/server.js';
-import user from './commands/user.js';
 
 //create discord Client with needed Intents and Partials
 const client = new Client({ 
@@ -16,7 +15,14 @@ const client = new Client({
   partials: [Message, ChannelManager, Channel] });
 
 //Data structures
+var user = {
+  id: '',
+  allowTrading: false,
+  binanceApiKey: '',
+  binanceApiSecret: '',
+}
 var registeredUsers = [];
+var discordUserObjects = [];
 var trackedTwitterAccounts = [];
 var twitterTestAccount = {
   id: '1256716686',
@@ -29,19 +35,18 @@ var twitterTestAccount = {
 client.commands = new Collection();
 client.commands.set(ping.data.name, {execute:ping.execute});
 client.commands.set(server.data.name, {execute:server.execute});
-client.commands.set(user.data.name, {execute:user.execute});
 
 //Actions to perform when Bot comes online
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   console.log("Attempting to load registered users.");
-  registeredUsers = await discord.loadUsers('./data/registeredUsers.json', client);
+  registeredUsers = await discord.loadUsers('./data/registeredUsers.json');
 
   console.log("Starting reaction listener for registrations.");
   discord.reactionCollector(client, registeredUsers);
 
-  console.log(`Fetching latest tweets from users.`)
+  console.log(`Fetching latest tweets from tracked twitter accounts.`)
   await getLatestTweet();
 });
 
