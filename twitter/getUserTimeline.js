@@ -25,10 +25,10 @@ const getUserTimeline = async(token, user) => {
     // we request the author_id expansion so that we can print out the user name later
 
     let params = {
-        "max_results": 5,
         "tweet.fields": "created_at",
         "expansions": "author_id",
-        "media.fields": "url"
+        "media.fields": "url",
+        "max_results": 5
     }
 
     if(!user.latestTweet == ''){
@@ -64,10 +64,7 @@ const getUserTimeline = async(token, user) => {
         }
     }
   
-    console.dir(userTweets, {
-        depth: null
-    });
-    console.log(`Got ${userTweets.length} Tweets from ${user.username} (user ID ${user.id})!`);
+    console.log(`Got ${userTweets.length} Tweets from ${user.username} (userID:${user.id})!`);
     return userTweets;
 }
 

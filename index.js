@@ -8,6 +8,7 @@ import twitter from './twitter/index.js';
 import discord from './discord/index.js';
 import ping from './commands/ping.js';
 import server from './commands/server.js';
+import helperFunctions from './helperFunctions/index.js';
 
 //create discord Client with needed Intents and Partials
 const client = new Client({ 
@@ -15,11 +16,11 @@ const client = new Client({
   partials: [Message, ChannelManager, Channel] });
 
 //Data structures
-var user = {
-  id: '',
+var registeredUser = {
+  id: '125125123',
   allowTrading: false,
-  binanceApiKey: '',
-  binanceApiSecret: '',
+  binanceApiKey: '51241234',
+  binanceApiSecret: '5123123',
 }
 var registeredUsers = [];
 var discordUserObjects = [];
@@ -41,13 +42,20 @@ client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   console.log("Attempting to load registered users.");
-  registeredUsers = await discord.loadUsers('./data/registeredUsers.json');
+  //registeredUsers = await discord.loadUsers('./data/registeredUsers.json');
+  registeredUsers = await helperFunctions.getRegisteredUsers();
+
+  console.log("Fetching discord user objects for registered users");
+  discordUserObjects = await discord.getDiscordUserObjects(client, registeredUsers);
+  console.log(discordUserObjects);
 
   console.log("Starting reaction listener for registrations.");
-  discord.reactionCollector(client, registeredUsers);
+  discord.reactionCollector(client, registeredUsers, discordUserObjects);
 
   console.log(`Fetching latest tweets from tracked twitter accounts.`)
   await getLatestTweet();
+  console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
+  checkForNewTweets();
 });
 
 //should call this at startup 
@@ -76,7 +84,6 @@ function checkForNewTweets(){
     if(tweets != ''){
       twitterTestAccount.latestTweet = tweets[0].id;
       checkForMentions(tweets, twitterTestAccount, "DOGE");
-      console.log(twitterTestAccount.latestTweet);
     }
     checkForNewTweets();
   }, 6000);
@@ -109,7 +116,7 @@ async function notifyUsers(user, tweet){
     .setDescription(`User: ${user.username} has mentioned DOGE in their tweet!`)
     .setThumbnail(tweetUrl)
     .addField('Tweet Link', tweetUrl, true);
-  for(let u of registeredUsers){
+  for(let u of discordUserObjects){
     u.send({ embeds: [notificationEmbed]});
   }
 }
@@ -138,7 +145,5 @@ client.on('interactionCreate', async interaction => {
       return interaction.reply({ content: 'There was an error executing this command!', ephemeral: true});
   }
 });
-
-checkForNewTweets();
 
 client.login(config.token);
