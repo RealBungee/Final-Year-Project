@@ -1,7 +1,7 @@
 import { readdirSync } from 'fs';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import data from './config.js';
+import data from '../config.js';
 
 const commands = [];
 const commandFiles = readdirSync('./commands').filter(file => file.endsWith('.js'));
