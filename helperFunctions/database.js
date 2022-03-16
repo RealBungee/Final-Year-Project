@@ -22,7 +22,18 @@ var userSchema = new mongoose.Schema({
   binanceApiSecret: String
 });
 
+var twitterAccountSchema = new mongoose.Schema({
+  id: String,
+  name: String,
+  username: String,
+  latestTweet: String,
+  subscribedUsers: [{
+    type: String
+  }]
+});
+
 var registeredUsers = mongoose.model('registeredUsers', userSchema);
+var twitterAccounts = mongoose.model('twitterAccounts', twitterAccountSchema);
 
 function getRegisteredUsers(){
   try{
@@ -40,6 +51,18 @@ function addNewRegisteredUser(newUser){
   } catch(err) {
     console.log(`Error adding new registered user to database...`);
   }
+}
+
+function getTwitterAccounts(){
+  try{
+    return twitterAccounts.find({});
+  } catch(err){
+    console.log(`Error loading twitter account data! \n${err}`);
+  }
+}
+
+function updateTwitterAccount(data){
+
 }
 
 function updateUserData(user){
