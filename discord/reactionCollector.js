@@ -1,13 +1,19 @@
 //import  { saveObjects } from "./saveFile.js";
 import helperFunctions from "../helperFunctions/index.js";
-async function reactionCollector(client, registeredUsers, discordUserObjects) {
-  let channel = await client.channels.fetch('934165450084978718')
-  .catch(console.error);
-  let message = await channel.messages.fetch('938131309019164675')
-  .catch(console.error);
+import {MessageEmbed} from 'discord.js';
 
+async function reactionCollector(client, registeredUsers, discordUserObjects) {
   const filter = (reaction) => reaction.emoji.name === '🤏';
-  const collector = await message.createReactionCollector({ filter });
+  var message = '';
+  
+  await client.channels.fetch('934165450084978718')
+  .catch(console.error)
+  .then (async channel => {
+    message = await channel.messages.fetch('938131309019164675')
+    .catch(console.error)
+  });
+  
+  const collector = message.createReactionCollector({ filter });
 
   collector.on('collect', (reaction, user) => {
     console.log(`Collected ${reaction.emoji.name} from ${user.username}!`)
@@ -22,7 +28,14 @@ function checkIfRegistered(user, registeredUsers, discordUserObjects){
     if(u.id == user.id){ isRegistered = true;}
   }
   if(!isRegistered){
-    user.send(`Hello ${user.username}, thanks for registering to the bot!`);
+    const registrationEmbed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle('WELCOME!')
+    .setDescription(`Hello ${user.username}, thank you for registering to the bot!\n
+      Commands are only available in Direct Messaging (We do not want to leak your valuable information)`)
+    .addField('Help info', `Please type "help" to show available commands`, true);
+    user.send({ embeds: [registrationEmbed]});
+
     let u = {
       id: user.id,
       allowTrading: false,
@@ -37,6 +50,7 @@ function checkIfRegistered(user, registeredUsers, discordUserObjects){
     helperFunctions.addNewRegisteredUser(u);
   }
 }
+
 
 export {
     reactionCollector

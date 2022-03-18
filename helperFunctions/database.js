@@ -45,7 +45,7 @@ function getRegisteredUsers(){
 
 function addNewRegisteredUser(newUser){
   let user = new registeredUsers(newUser);
-  console.log(`Adding user ${newUser.username} to list of registered users in database.`);
+  console.log(`Adding user ${newUser.id} to list of registered users in database.`);
   try{
     user.save();
   } catch(err) {
@@ -67,6 +67,7 @@ function updateTwitterAccount(data){
 
 function updateUserData(user){
   try{
+    
 
   } catch(err){
     console.log(`Error updating user data...`);
