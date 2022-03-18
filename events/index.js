@@ -1,5 +1,5 @@
-import { privateMessageResponse } from "./privateMessage.js";
+import { messageListener } from "./privateMessage.js";
 
 export default{
-    privateMessageResponse
+    messageListener
 }

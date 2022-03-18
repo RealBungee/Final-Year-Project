@@ -5,7 +5,7 @@ import {MessageEmbed} from 'discord.js';
 async function reactionCollector(client, registeredUsers, discordUserObjects) {
   const filter = (reaction) => reaction.emoji.name === '🤏';
   var message = '';
-  
+
   await client.channels.fetch('934165450084978718')
   .catch(console.error)
   .then (async channel => {
@@ -32,7 +32,7 @@ function checkIfRegistered(user, registeredUsers, discordUserObjects){
     .setColor('#0099ff')
     .setTitle('WELCOME!')
     .setDescription(`Hello ${user.username}, thank you for registering to the bot!\n
-      Commands are only available in Direct Messaging (We do not want to leak your valuable information)`)
+      Commands are only available in Direct Messaging (We do not want to leak your information)`)
     .addField('Help info', `Please type "help" to show available commands`, true);
     user.send({ embeds: [registrationEmbed]});
 

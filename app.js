@@ -59,7 +59,7 @@ client.on('ready', async () => {
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
   twitter.checkForNewTweets(config.twitterKeys, twitterTestAccount)
 
-  events.privateMessageResponse(client, 'ping', 'pong');
+  events.messageListener(client);
 });
 
 client.login(config.token);
