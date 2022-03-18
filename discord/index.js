@@ -1,7 +1,7 @@
 import { reactionCollector } from './reactionCollector.js';
-import { getDiscordUsers } from './getDiscordUserObjects.js';
-import { loadUsers } from './loadRegisteredUsers.js';
-import { saveObjects } from './saveFile.js';
+import { getDiscordUsers } from './getDiscordUsers.js';
+import { loadUsers } from '../helperFunctions/loadRegisteredUsers.js';
+import { saveObjects } from '../helperFunctions/saveFile.js';
 import { notifyUsers } from './notifyUsers.js';
 
 export default{

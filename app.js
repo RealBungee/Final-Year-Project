@@ -62,13 +62,4 @@ client.on('ready', async () => {
   events.privateMessageResponse(client, 'ping', 'pong');
 });
 
-// client.on('interactionCreate', async interaction => {
-//   let message = interaction.message;
-//   if(message.channel.type == 'dm'){
-//     if(message.content.toLowerCase() == 'ping'){
-//       message.author.send('pong');
-//     }
-//   }
-// });
-
 client.login(config.token);
