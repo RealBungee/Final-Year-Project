@@ -1,7 +1,7 @@
 //API keys imports from config.js into config
 import  config from './config.js';
 //discord imports
-import { Client, Intents, Collection, Message, ChannelManager, Channel, MessageEmbed } from 'discord.js';
+import { Client, Intents, Collection } from 'discord.js';
 
 //My own function imports for twitter, discord and binance functionality
 import twitter from './twitter/index.js';
@@ -24,7 +24,7 @@ var registeredUser = {
   binanceApiSecret: '5123123',
 }
 var registeredUsers = [];
-var discordUserObjects = [];
+var discordUsers = [];
 var trackedTwitterAccounts = [];
 var twitterTestAccount = {
   id: '1256716686',
@@ -47,10 +47,10 @@ client.on('ready', async () => {
   registeredUsers = await helperFunctions.getRegisteredUsers();
 
   console.log("Fetching discord user objects for registered users");
-  discordUserObjects = await discord.getDiscordUserObjects(client, registeredUsers);
+  discordUsers = await discord.getDiscordUsers(client, registeredUsers);
 
   console.log("Starting reaction listener for registrations.");
-  discord.reactionCollector(client, registeredUsers, discordUserObjects);
+  discord.reactionCollector(client, registeredUsers, discordUsers);
 
   console.log(`Fetching latest tweets from tracked twitter accounts.`)
   await twitter.getLatestTweet(config.twitterKeys, twitterTestAccount);
