@@ -53,16 +53,26 @@ function addNewRegisteredUser(newUser){
   }
 }
 
+async function deregisterUser(user){
+  try{
+    await registeredUsers.deleteOne({ id: user.id });
+    console.log(`Successfully removed ${user.username} and their info from the database`);
+  } catch(err){
+    console.log(`Error removing user ${user.username} from the database \n${err}`);
+  } 
+}
+
+function updateTwitterAccount(data){
+
+}
+
+
 function getTwitterAccounts(){
   try{
     return twitterAccounts.find({});
   } catch(err){
     console.log(`Error loading twitter account data! \n${err}`);
   }
-}
-
-function updateTwitterAccount(data){
-
 }
 
 function updateUserData(user){
@@ -77,6 +87,7 @@ function updateUserData(user){
 
 export {
   getRegisteredUsers,
-  addNewRegisteredUser
+  addNewRegisteredUser,
+  deregisterUser
 }
 

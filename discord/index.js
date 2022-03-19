@@ -9,5 +9,5 @@ export default{
     getDiscordUsers,
     loadUsers,
     saveObjects,
-    notifyUsers
+    notifyUsers,
 }

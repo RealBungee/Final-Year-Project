@@ -1,6 +1,7 @@
-import { getRegisteredUsers, addNewRegisteredUser } from "./database.js";
+import { getRegisteredUsers, addNewRegisteredUser, deregisterUser } from "./database.js";
 
 export default {
     getRegisteredUsers,
-    addNewRegisteredUser
+    addNewRegisteredUser,
+    deregisterUser
 }

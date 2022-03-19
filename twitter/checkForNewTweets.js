@@ -1,19 +1,19 @@
 import { getUserTimeline } from "./getUserTimeline.js";
 import { notifyUsers } from "../discord/notifyUsers.js"
 
-function checkForNewTweets(twitterKeys, twitterAccount){
+function checkForNewTweets(twitterKeys, twitterAccount, discordUsers){
     setTimeout( async () => {
         let tweets;
         tweets = await getUserTimeline(twitterKeys, twitterAccount);
         if(tweets != ''){
             twitterAccount.latestTweet = tweets[0].id;
-            checkForMentions(tweets, twitterAccount, "DOGE");
+            checkForMentions(tweets, twitterAccount, discordUsers, "DOGE");
         }
-      checkForNewTweets(twitterKeys, twitterAccount);
+      checkForNewTweets(twitterKeys, twitterAccount, discordUsers);
     }, 6000);
   }
 
-  async function checkForMentions(tweets, user, keyword){
+  async function checkForMentions(tweets, user, discordUsers, keyword){
     console.log(`Checking for mentions of ${keyword} in retrieved tweets`);
     for(let t of tweets){
       if(t.text.toUpperCase().includes(keyword)){
@@ -25,7 +25,7 @@ function checkForNewTweets(twitterKeys, twitterAccount){
             console.log("Error fetching tweet containing mention of keyword\n", error);
           }
         console.log('Attempting to notify the registered users');
-        notifyUsers(user, fullTweet);
+        notifyUsers(user, fullTweet, discordUsers);
         //break because we only care about the most recent tweet (tweets saved from most recent to least) 
         break;
       }

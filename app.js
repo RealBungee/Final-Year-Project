@@ -17,15 +17,19 @@ const client = new Client({
   partials: ["MESSAGE", "CHANNEL", "REACTION"]});
 
 //Data structures
+var registeredUsers = [];
+var discordUsers = [];
+var trackedTwitterAccounts = [];
+
+//example registered user object saved in registeredUsers
 var registeredUser = {
   id: '125125123',
   allowTrading: false,
   binanceApiKey: '51241234',
   binanceApiSecret: '5123123',
 }
-var registeredUsers = [];
-var discordUsers = [];
-var trackedTwitterAccounts = [];
+
+//example twitter accounts objects
 var twitterTestAccount = {
   id: '1256716686',
   name: 'TestingAccount',
@@ -59,7 +63,22 @@ client.on('ready', async () => {
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
   twitter.checkForNewTweets(config.twitterKeys, twitterTestAccount)
 
-  events.messageListener(client);
+  events.messageListener(client, discordUsers);
 });
+
+async function deregisterUser(user){
+  console.log(discordUsers)
+  let index = discordUsers.indexOf(user);
+  if (index > -1){
+    discordUsers.splice(index, 1);
+    registeredUsers.splice(index, 1);
+    helperFunctions.deregisterUser(user);
+  }
+  console.log(discordUsers);
+}
+
+export {
+  deregisterUser
+}
 
 client.login(config.token);

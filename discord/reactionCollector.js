@@ -16,7 +16,6 @@ async function reactionCollector(client, registeredUsers, discordUserObjects) {
   const collector = message.createReactionCollector({ filter });
 
   collector.on('collect', (reaction, user) => {
-    console.log(`Collected ${reaction.emoji.name} from ${user.username}!`)
     checkIfRegistered(user, registeredUsers, discordUserObjects);
   });
   console.log("Reaction collector started!");
@@ -32,7 +31,9 @@ function checkIfRegistered(user, registeredUsers, discordUserObjects){
     .setColor('#0099ff')
     .setTitle('WELCOME!')
     .setDescription(`Hello ${user.username}, thank you for registering to the bot!\n
-      Commands are only available in Direct Messaging (We do not want to leak your information)`)
+      Commands are only available in Direct Messaging (We do not want to leak your information)
+      You are automatically subscribed to Elon Musk's tweets.
+      Use commands to add/remove subscriptions`)
     .addField('Help info', `Please type "help" to show available commands`, true);
     user.send({ embeds: [registrationEmbed]});
 

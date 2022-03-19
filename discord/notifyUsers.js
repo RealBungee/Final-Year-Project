@@ -1,4 +1,4 @@
-async function notifyUsers(user, tweet){
+async function notifyUsers(user, tweet, discordUsers){
     let tweetUrl = `https://twitter.com/${user.username}/status/${tweet.data[0].id}`;
     const notificationEmbed = new MessageEmbed()
       .setColor('#0099ff')
@@ -6,7 +6,7 @@ async function notifyUsers(user, tweet){
       .setDescription(`User: ${user.username} has mentioned DOGE in their tweet!`)
       .setThumbnail(tweetUrl)
       .addField('Tweet Link', tweetUrl, true);
-    for(let u of discordUserObjects){
+    for(let u of discordUsers){
       u.send({ embeds: [notificationEmbed]});
     }
   }
