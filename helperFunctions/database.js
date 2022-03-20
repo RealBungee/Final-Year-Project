@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import config from '../config.js';
-import structures from '../structures.js';
+import structures from '../data/structures.js';
 
 const username = config.mongoDB.username;
 const pass = config.mongoDB.password;

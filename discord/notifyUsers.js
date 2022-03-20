@@ -1,4 +1,4 @@
-import structures from '../structures.js'
+import structures from '../data/structures.js'
 import { MessageEmbed } from 'discord.js';
 
 async function notifyUsers(user, tweet){

@@ -1,5 +1,5 @@
 import { MessageEmbed } from 'discord.js';
-import structures from '../structures.js';
+import structures from '../data/structures.js';
 import privateCommands from '../discord/privateCommands.js';
 
 const helpEmbed = new MessageEmbed()

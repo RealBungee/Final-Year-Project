@@ -2,7 +2,7 @@
 import twitter from '../twitter/index.js';
 import config from '../config.js';
 import helperFunctions from '../helperFunctions/index.js';
-import structures from '../structures.js'
+import structures from '../data/structures.js'
 
 async function followAccount(message){
     console.log("Follow Account Command");
