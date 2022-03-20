@@ -1,7 +1,7 @@
-import { getRegisteredUsers, addNewRegisteredUser, deregisterUser } from "./database.js";
+import database from "./database.js";
+import { getDiscordUsers } from "./getDiscordUsers.js";
 
 export default {
-    getRegisteredUsers,
-    addNewRegisteredUser,
-    deregisterUser
+    database,
+    getDiscordUsers
 }

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import config from '../config.js';
+import structures from '../structures.js';
 
 const username = config.mongoDB.username;
 const pass = config.mongoDB.password;
@@ -35,9 +36,9 @@ var twitterAccountSchema = new mongoose.Schema({
 var registeredUsers = mongoose.model('registeredUsers', userSchema);
 var twitterAccounts = mongoose.model('twitterAccounts', twitterAccountSchema);
 
-function getRegisteredUsers(){
+async function getRegisteredUsers(){
   try{
-    return registeredUsers.find({});
+    structures.registeredUsers = await registeredUsers.find({});
   } catch (err){
     console.log(`Error loading registered users from the database! \n${err}`);
   }
@@ -45,9 +46,9 @@ function getRegisteredUsers(){
 
 function addNewRegisteredUser(newUser){
   let user = new registeredUsers(newUser);
-  console.log(`Adding user ${newUser.id} to list of registered users in database.`);
   try{
     user.save();
+    console.log(`Registered ${newUser.username}.`);
   } catch(err) {
     console.log(`Error adding new registered user to database...`);
   }
@@ -62,17 +63,26 @@ async function deregisterUser(user){
   } 
 }
 
-function updateTwitterAccount(data){
-
+function trackTwitterAccount(twitterAccount){
+  let account = new twitterAccounts(twitterAccount);
+  try{
+    console.log('Adding new twitter account to database');
+    account.save();
+  } catch(err){
+    console.log(`Error adding new twitter account to database!\n${err}`);
+  }
 }
 
-
-function getTwitterAccounts(){
+async function getTwitterAccounts(){
   try{
-    return twitterAccounts.find({});
+    structures.twitterAccounts = await twitterAccounts.find({});
   } catch(err){
     console.log(`Error loading twitter account data! \n${err}`);
   }
+}
+
+function updateTwitterAccount(data){
+
 }
 
 function updateUserData(user){
@@ -85,9 +95,11 @@ function updateUserData(user){
   console.log(`User data successfully updated!`);
 }
 
-export {
+export default{
   getRegisteredUsers,
   addNewRegisteredUser,
-  deregisterUser
+  deregisterUser,
+  trackTwitterAccount,
+  getTwitterAccounts
 }
 

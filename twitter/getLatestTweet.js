@@ -1,9 +1,10 @@
 import { getUserTimeline } from './getUserTimeline.js';
+import config from '../config.js';
 
-async function getLatestTweet(twitterKeys, account){
+async function getLatestTweet(account){
     let tweets;
     try{
-      tweets = await getUserTimeline(twitterKeys, account);
+      tweets = await getUserTimeline(account, config.twitterKeys);
     } catch(error){
       console.log(`Error fetching most recent tweet: ${error}`)
     }

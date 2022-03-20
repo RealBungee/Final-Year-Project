@@ -1,4 +1,7 @@
-async function notifyUsers(user, tweet, discordUsers){
+import structures from '../structures.js'
+import { MessageEmbed } from 'discord.js';
+
+async function notifyUsers(user, tweet){
     let tweetUrl = `https://twitter.com/${user.username}/status/${tweet.data[0].id}`;
     const notificationEmbed = new MessageEmbed()
       .setColor('#0099ff')
@@ -6,7 +9,7 @@ async function notifyUsers(user, tweet, discordUsers){
       .setDescription(`User: ${user.username} has mentioned DOGE in their tweet!`)
       .setThumbnail(tweetUrl)
       .addField('Tweet Link', tweetUrl, true);
-    for(let u of discordUsers){
+    for(let u of structures.discordUsers){
       u.send({ embeds: [notificationEmbed]});
     }
   }

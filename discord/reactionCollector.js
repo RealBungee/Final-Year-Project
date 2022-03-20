@@ -1,8 +1,9 @@
 //import  { saveObjects } from "./saveFile.js";
+import { MessageEmbed } from 'discord.js';
 import helperFunctions from "../helperFunctions/index.js";
-import {MessageEmbed} from 'discord.js';
+import structures from '../structures.js';
 
-async function reactionCollector(client, registeredUsers, discordUserObjects) {
+async function reactionCollector(client) {
   const filter = (reaction) => reaction.emoji.name === '🤏';
   var message = '';
 
@@ -14,19 +15,15 @@ async function reactionCollector(client, registeredUsers, discordUserObjects) {
   });
   
   const collector = message.createReactionCollector({ filter });
+  console.log("Reaction collector started!");
 
   collector.on('collect', (reaction, user) => {
-    checkIfRegistered(user, registeredUsers, discordUserObjects);
+    checkIfRegistered(user);
   });
-  console.log("Reaction collector started!");
 }
 
-function checkIfRegistered(user, registeredUsers, discordUserObjects){
-  let isRegistered = false;
-  for(const u of registeredUsers){
-    if(u.id == user.id){ isRegistered = true;}
-  }
-  if(!isRegistered){
+function checkIfRegistered(user){
+  if(!structures.discordUsers.includes(user)){
     const registrationEmbed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle('WELCOME!')
@@ -35,23 +32,21 @@ function checkIfRegistered(user, registeredUsers, discordUserObjects){
       You are automatically subscribed to Elon Musk's tweets.
       Use commands to add/remove subscriptions`)
     .addField('Help info', `Please type "help" to show available commands`, true);
+    
     user.send({ embeds: [registrationEmbed]});
-
     let u = {
       id: user.id,
       allowTrading: false,
       binanceApiKey: '',
       binanceApiSecret: '',
     }
-    registeredUsers.push(u);
-    discordUserObjects.push(user);
-    console.log(`Registered ${user.username}.`);
+    structures.registeredUsers.push(u);
+    structures.discordUsers.push(user);
     
-    //saveObjects('./data/registeredUsers.json', registeredUsers);
-    helperFunctions.addNewRegisteredUser(u);
+    console.log(`Adding user ${user.id} to list of registered users in database.`);
+    helperFunctions.database.addNewRegisteredUser(u);
   }
 }
-
 
 export {
     reactionCollector

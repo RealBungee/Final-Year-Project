@@ -19,7 +19,7 @@ const getPage = async (params, options, nextToken, url) => {
 }
 
 //takes in twitter user object
-const getUserTimeline = async(token, user) => {
+const getUserTimeline = async(user, token) => {
     const url = `https://api.twitter.com/2/users/${user.id}/tweets`;
     let userTweets = [];
     // we request the author_id expansion so that we can print out the user name later

@@ -1,4 +1,5 @@
 import { MessageEmbed } from 'discord.js';
+import structures from '../structures.js';
 import privateCommands from '../discord/privateCommands.js';
 
 const helpEmbed = new MessageEmbed()
@@ -10,17 +11,27 @@ const helpEmbed = new MessageEmbed()
     .addField('followAccount', `Command used to follow another user on twitter - bot will ask you to enter username or user id`, true)
     .addField('enableTrading', `Allow the bot to place trades on Binance exchange. Will require API keys.`, true)
     .addField('deregister', `Deregister from the bot - removes all your data (API keys, preferences, etc.)`, true);
+
 const commands = ['followAccount', 'enableTrading', 'deregister'];
 
-function messageListener(client, discordUsers){
+function messageListener(client){
     client.on('messageCreate', message => {
         let content = message.content;
-        if(message.channel.type == 'DM' && discordUsers.includes(message.author)){
-            if(content === 'help'){
-                message.author.send({ embeds: [helpEmbed]});
-            }
-            else if(commands.includes(content)){
-                privateCommands[content](message);
+        let author = message.author;
+
+        if(message.channel.type == 'DM'){
+            if(structures.discordUsers.includes(author)){
+                if(author.id == '274614462147985408'){
+                    if(content === 'addTwitter'){
+                        privateCommands.addTwitterAccount(message);
+                    }
+                }
+                if(content === 'help'){
+                    author.send({ embeds: [helpEmbed]});
+                }
+                else if(commands.includes(content)){
+                    privateCommands[content](message);
+                }
             }
         }
     });

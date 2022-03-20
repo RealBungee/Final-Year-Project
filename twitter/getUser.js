@@ -6,8 +6,6 @@ import needle from 'needle';
 async function getUserInfo(token, user) {
 
     const endpointURL = "https://api.twitter.com/2/users/by?usernames=";
-    //smiley's twitter users to check for new tweets
-    const smileyUsers = ["rektproof", "elonmusk", "ShardiB2"];
 
     // These are the parameters for the API request
     // specify User names to fetch, and any additional fields that are required
@@ -30,6 +28,9 @@ async function getUserInfo(token, user) {
         console.log(res.body);
         user.id = res.body.data[0].id;
         user.name = res.body.data[0].name;
+        user.username = res.body.data[0].username;
+        user.lastTweet = '';
+        user.subscribedUsers = [""];
         return user;
     } else {
         throw new Error('Unsuccessful request');

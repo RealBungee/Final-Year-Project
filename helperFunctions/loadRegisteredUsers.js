@@ -1,5 +1,6 @@
 import fs from 'fs';
 
+//depricated
 async function loadUsers(path){
   let users = [];
     try{

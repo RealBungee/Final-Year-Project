@@ -16,20 +16,8 @@ const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES], 
   partials: ["MESSAGE", "CHANNEL", "REACTION"]});
 
-//Data structures
-var registeredUsers = [];
-var discordUsers = [];
-var trackedTwitterAccounts = [];
-
-//example registered user object saved in registeredUsers
-var registeredUser = {
-  id: '125125123',
-  allowTrading: false,
-  binanceApiKey: '51241234',
-  binanceApiSecret: '5123123',
-}
-
 //example twitter accounts objects
+//used for testing
 var twitterTestAccount = {
   id: '1256716686',
   name: 'TestingAccount',
@@ -46,39 +34,26 @@ client.commands.set(server.data.name, {execute:server.execute});
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  console.log("Attempting to load registered users.");
-  //registeredUsers = await discord.loadUsers('./data/registeredUsers.json');
-  registeredUsers = await helperFunctions.getRegisteredUsers();
+  console.log("Fetching registered users.");
+  await helperFunctions.database.getRegisteredUsers();
 
   console.log("Fetching discord user objects for registered users");
-  discordUsers = await discord.getDiscordUsers(client, registeredUsers);
+  await helperFunctions.getDiscordUsers(client);
+  
+  console.log('Fetching tracked twitter accounts');
+  await helperFunctions.database.getTwitterAccounts();
 
   console.log("Starting reaction listener for registrations.");
-  discord.reactionCollector(client, registeredUsers, discordUsers);
+  discord.reactionCollector(client);
 
   console.log(`Fetching latest tweets from tracked twitter accounts.`)
-  await twitter.getLatestTweet(config.twitterKeys, twitterTestAccount);
-  console.log(twitterTestAccount);
+  await twitter.getLatestTweet(twitterTestAccount);
 
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
-  twitter.checkForNewTweets(config.twitterKeys, twitterTestAccount)
+  twitter.checkForNewTweets(twitterTestAccount)
 
-  events.messageListener(client, discordUsers);
+  console.log(`Starting the private message listener.`);
+  events.messageListener(client);
 });
-
-async function deregisterUser(user){
-  console.log(discordUsers)
-  let index = discordUsers.indexOf(user);
-  if (index > -1){
-    discordUsers.splice(index, 1);
-    registeredUsers.splice(index, 1);
-    helperFunctions.deregisterUser(user);
-  }
-  console.log(discordUsers);
-}
-
-export {
-  deregisterUser
-}
 
 client.login(config.token);
