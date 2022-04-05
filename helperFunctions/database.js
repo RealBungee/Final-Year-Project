@@ -48,16 +48,20 @@ function addNewRegisteredUser(newUser){
   let user = new registeredUsers(newUser);
   try{
     user.save();
-    console.log(`Registered ${newUser.username}.`);
+    console.log(`Registered user by user id: ${newUser.id}.`);
   } catch(err) {
     console.log(`Error adding new registered user to database...`);
   }
 }
 
+function enableTrading(){
+
+}
+
 async function deregisterUser(user){
   try{
     await registeredUsers.deleteOne({ id: user.id });
-    console.log(`Successfully removed ${user.username} and their info from the database`);
+    console.log(`Successfully removed ${user.username} and their information from the database`);
   } catch(err){
     console.log(`Error removing user ${user.username} from the database \n${err}`);
   } 
@@ -100,6 +104,7 @@ export default{
   addNewRegisteredUser,
   deregisterUser,
   trackTwitterAccount,
-  getTwitterAccounts
+  getTwitterAccounts,
+  enableTrading
 }
 

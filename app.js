@@ -50,7 +50,7 @@ client.on('ready', async () => {
   await twitter.getLatestTweet(twitterTestAccount);
 
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
-  twitter.checkForNewTweets(twitterTestAccount)
+ // twitter.checkForNewTweets(twitterTestAccount)
 
   console.log(`Starting the private message listener.`);
   events.messageListener(client);

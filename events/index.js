@@ -1,4 +1,4 @@
-import { messageListener } from "./privateMessage.js";
+import { messageListener } from './privateMessageListener.js';
 
 export default{
     messageListener

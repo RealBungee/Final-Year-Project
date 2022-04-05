@@ -1,6 +1,6 @@
 //import  { saveObjects } from "./saveFile.js";
 import { MessageEmbed } from 'discord.js';
-import helperFunctions from "../helperFunctions/index.js";
+import helperFunctions from '../helperFunctions/index.js';
 import structures from '../data/structures.js';
 
 async function reactionCollector(client) {
