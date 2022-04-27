@@ -37,6 +37,7 @@ function checkIfRegistered(user){
     let u = {
       id: user.id,
       allowTrading: false,
+      notifications: false,
       binanceApiKey: '',
       binanceApiSecret: '',
     }

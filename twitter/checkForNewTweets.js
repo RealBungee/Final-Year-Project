@@ -16,7 +16,7 @@ function checkForNewTweets(twitterAccount){
   }
 
   async function checkForMentions(tweets, user, keyword){
-    console.log(`Checking for mentions of ${keyword} in retrieved tweets`);
+    console.log(`Checking for mentions of user keywords in retrieved tweets`);
     for(let t of tweets){
       if(t.text.toUpperCase().includes(keyword)){
         console.log(`User: ${user.username} has mentioned ${keyword} in their tweet!`);
@@ -26,7 +26,7 @@ function checkForNewTweets(twitterAccount){
           } catch(error){
             console.log("Error fetching tweet containing mention of keyword\n", error);
           }
-        console.log('Attempting to notify the registered users');
+        console.log('Attempting to notify the subscribed users');
         notifyUsers(user, fullTweet);
         //break because we only care about the most recent tweet (tweets saved from most recent to least) 
         break;

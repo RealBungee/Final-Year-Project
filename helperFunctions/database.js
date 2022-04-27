@@ -19,6 +19,7 @@ mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true})
 var userSchema = new mongoose.Schema({
   id: String,
   allowTrading: Boolean,
+  notifications: Boolean,
   binanceApiKey: String,
   binanceApiSecret: String
 });
@@ -44,7 +45,7 @@ async function getRegisteredUsers(){
   }
 }
 
-function addNewRegisteredUser(newUser){
+async function addNewRegisteredUser(newUser){
   let user = new registeredUsers(newUser);
   try{
     user.save();
@@ -52,10 +53,6 @@ function addNewRegisteredUser(newUser){
   } catch(err) {
     console.log(`Error adding new registered user to database...`);
   }
-}
-
-function enableTrading(){
-
 }
 
 async function deregisterUser(user){
@@ -67,7 +64,18 @@ async function deregisterUser(user){
   } 
 }
 
-function trackTwitterAccount(twitterAccount){
+function updateUserData(u){
+  let user = new registeredUsers(u);
+  try{
+    registeredUsers.deleteOne({ id: u.id });
+    user.save();
+  } catch(err){
+    console.log(`Error updating user data...`);
+  }
+  console.log(`User data successfully updated!`);
+}
+
+async function trackTwitterAccount(twitterAccount){
   let account = new twitterAccounts(twitterAccount);
   try{
     console.log('Adding new twitter account to database');
@@ -85,18 +93,12 @@ async function getTwitterAccounts(){
   }
 }
 
-function updateTwitterAccount(data){
+async function updateTwitterAccount(data){
 
 }
 
-function updateUserData(user){
-  try{
-    
+function enableTrading(){
 
-  } catch(err){
-    console.log(`Error updating user data...`);
-  }
-  console.log(`User data successfully updated!`);
 }
 
 export default{
@@ -105,6 +107,7 @@ export default{
   deregisterUser,
   trackTwitterAccount,
   getTwitterAccounts,
-  enableTrading
+  enableTrading,
+  updateUserData
 }
 

@@ -8,11 +8,12 @@ const helpEmbed = new MessageEmbed()
     .setDescription(`All provided commands are constricted to direct messsaging with the bot\n
     Please do not use given commands in server channels\n
     To enact a command, write only the command name as found in command list below:`)
-    .addField('followAccount', `Command used to follow another user on twitter - bot will ask you to enter username or user id`, true)
+    .addField('followAccount', `Command used to follow another user on twitter - bot will ask you to enter username or user id.`, true)
+    .addField('addKeyword', `Input command allowing you to add keywords you look for in chosen twitter account tweets.`, true)
     .addField('enableTrading', `Allow the bot to place trades on Binance exchange. Will require API keys.`, true)
     .addField('deregister', `Deregister from the bot - removes all your data (API keys, preferences, etc.)`, true);
 
-const commands = ['followAccount', 'enableTrading', 'deregister'];
+const commands = ['followAccount', 'enableTrading', 'deregister', 'addKeyword', 'notifications'];
 
 function messageListener(client){
     client.on('messageCreate', message => {

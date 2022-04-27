@@ -17,7 +17,6 @@ const client = new Client({
   partials: ["MESSAGE", "CHANNEL", "REACTION"]});
 
 //example twitter accounts objects
-//used for testing
 var twitterTestAccount = {
   id: '1256716686',
   name: 'TestingAccount',
@@ -25,14 +24,14 @@ var twitterTestAccount = {
   latestTweet: ''
 }
 
-//load in slash Commands
-client.commands = new Collection();
-client.commands.set(ping.data.name, {execute:ping.execute});
-client.commands.set(server.data.name, {execute:server.execute});
-
 //Actions to perform when Bot comes online
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
+
+  //load in slash Commands
+  client.commands = new Collection();
+  client.commands.set(ping.data.name, {execute:ping.execute});
+  client.commands.set(server.data.name, {execute:server.execute});
 
   console.log("Fetching registered users.");
   await helperFunctions.database.getRegisteredUsers();
@@ -50,7 +49,7 @@ client.on('ready', async () => {
   await twitter.getLatestTweet(twitterTestAccount);
 
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
- // twitter.checkForNewTweets(twitterTestAccount)
+  twitter.checkForNewTweets(twitterTestAccount)
 
   console.log(`Starting the private message listener.`);
   events.messageListener(client);
