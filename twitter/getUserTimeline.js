@@ -1,4 +1,5 @@
 import needle from 'needle';
+import config from '../config.js';
 
 const getPage = async (params, options, nextToken, url) => {
     if (nextToken) {
@@ -19,7 +20,7 @@ const getPage = async (params, options, nextToken, url) => {
 }
 
 //takes in twitter user object
-const getUserTimeline = async(user, token) => {
+const getUserTimeline = async(user) => {
     const url = `https://api.twitter.com/2/users/${user.id}/tweets`;
     let userTweets = [];
     // we request the author_id expansion so that we can print out the user name later
@@ -28,7 +29,7 @@ const getUserTimeline = async(user, token) => {
         "tweet.fields": "created_at",
         "expansions": "author_id",
         "media.fields": "url",
-        "max_results": 5
+        "max_results": 20
     }
 
     if(!user.latestTweet == ''){
@@ -38,7 +39,7 @@ const getUserTimeline = async(user, token) => {
     const options = {
         headers: {
             "User-Agent": "v2UserTweetsJS",
-            "authorization": `Bearer ${token.bearerToken}`
+            "authorization": `Bearer ${config.twitterKeys.bearerToken}`
         }
     }
   

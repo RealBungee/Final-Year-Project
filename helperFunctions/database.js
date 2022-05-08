@@ -38,14 +38,6 @@ var twitterAccountSchema = new mongoose.Schema({
 var registeredUsers = mongoose.model('registeredUsers', userSchema);
 var twitterAccounts = mongoose.model('twitterAccounts', twitterAccountSchema);
 
-async function getRegisteredUsers(){
-  try{
-    structures.registeredUsers = await registeredUsers.find({});
-  } catch (err){
-    console.log(`Error loading registered users from the database! \n${err}`);
-  }
-}
-
 async function addNewRegisteredUser(newUser){
   let user = new registeredUsers(newUser);
   try{
@@ -65,22 +57,31 @@ async function deregisterUser(user){
   } 
 }
 
-async function updateUserData(u){
+async function updateFollowedAccount(user){
+  const query = { id: user.id };
   try{
-    await registeredUsers.deleteOne({ id: u.id });
-    let user = new registeredUsers(u);
-    const iterator = u.followedAccounts.entries();
-
-    let result = iterator.next();
-    while(!result.done){
-      user.set(result.value)
-      result = iterator.next();
-    }
-    await user.save();
+    await registeredUsers.findOneAndUpdate(query, { followedAccounts: user.followedAccounts });
   } catch(err){
-    console.log(`Error updating user data...`);
+    console.log(err);
   }
-  console.log(`User data successfully updated!`);
+}
+
+async function updateNotifications(user){
+  const query = { id: user.id };
+  try{
+    await registeredUsers.findOneAndUpdate(query, { notifications: user.notifications });
+  } catch(err){
+    console.log(err);
+  }
+}
+
+async function updateNewTweet(account, newTweetId){
+  const query =  { id : account.id } ;
+  try{
+    await twitterAccounts.findOneAndUpdate(query, { latestTweet: newTweetId });
+  } catch(err){
+    console.log(err);
+  }
 }
 
 async function trackTwitterAccount(twitterAccount){
@@ -93,16 +94,20 @@ async function trackTwitterAccount(twitterAccount){
   }
 }
 
+async function getRegisteredUsers(){
+  try{
+    structures.registeredUsers = await registeredUsers.find({});
+  } catch (err){
+    console.log(`Error loading registered users from the database! \n${err}`);
+  }
+}
+
 async function getTwitterAccounts(){
   try{
     structures.twitterAccounts = await twitterAccounts.find({});
   } catch(err){
     console.log(`Error loading twitter account data! \n${err}`);
   }
-}
-
-async function updateTwitterAccount(data){
-
 }
 
 function enableTrading(){
@@ -116,6 +121,8 @@ export default{
   trackTwitterAccount,
   getTwitterAccounts,
   enableTrading,
-  updateUserData
+  updateNewTweet,
+  updateNotifications,
+  updateFollowedAccount
 }
 

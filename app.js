@@ -48,11 +48,12 @@ client.on('ready', async () => {
   discord.reactionCollector(client);
 
   console.log(`Fetching latest tweets from tracked twitter accounts.`)
-  await twitter.getLatestTweet(twitterTestAccount);
+  await twitter.getLatestTweets();
 
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
-  for(t of structures.twitterAccounts)
-  twitter.checkForNewTweets(t);
+  for(let t of structures.twitterAccounts){
+    twitter.checkForNewTweets(t);
+  }
 
   console.log(`Starting the private message listener.`);
   events.messageListener(client);

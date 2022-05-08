@@ -1,5 +1,4 @@
 import twitter from '../twitter/index.js';
-import config from '../config.js';
 import structures from '../data/structures.js';
 import { MessageActionRow, MessageButton } from 'discord.js';
 import database from '../helperFunctions/database.js';
@@ -106,7 +105,7 @@ async function addKeyword(message){
                     .setStyle('PRIMARY'),
             );
         labels.push(result.value);
-        result= iterator.next();
+        result = iterator.next();
     }
 
     if(rows[rowIndex].components.length == 5){
@@ -145,7 +144,7 @@ async function awaitKeywords(message, filter, account, keywords){
                 if(keywords.length > 0){
                     const user = structures.registeredUsers.find(u => u.id == message.author.id);
                     user.followedAccounts.set(account, keywords);
-                    database.updateUserData(user);
+                    database.updateFollowedAccount(user);
                 }
                 message.reply('Interaction stopped.');
             } else{
@@ -192,7 +191,7 @@ function notifications(m){
         if(i.customId === label){
             content = !notifications ? 'Enabled' : 'Disabled';
             structures.registeredUsers[index].notifications = !notifications;
-            database.updateUserData(structures.registeredUsers[index]);
+            database.updateNotifications(structures.registeredUsers[index]);
             await i.reply(`Changed the notification settings to ${content}`);
         } else {
             await i.reply('Interaction stopped!');
@@ -227,12 +226,12 @@ async function enableTrading(message){
         });
 }
 
-function addTwitterAccount(message){
+async function addTwitterAccount(message){
     // `m` is a message object that will be passed through the filter function
     message.reply('Please enter twitter username without the "@" handle. You have 30 seconds.');
 
     let filter = m => m.author != '815660797236740121';
-    const collector = message.channel.createMessageCollector({ filter, time: 30000 });
+    const collector = message.channel.createMessageCollector({ filter, max: 1, time: 30000 });
 
     collector.on('collect', async m => {
         console.log(`Colleted message with message collector. Looking for twitter user ${m.content}`);
@@ -241,12 +240,14 @@ function addTwitterAccount(message){
         };
 
         try{
-            let account = await twitter.getUserInfo(config.twitterKeys, user);
+            let account = await twitter.getUserInfo(user);
             try{
                 console.log(`Attempting to track ${account.username}`);
                 if(!structures.twitterAccounts.filter(a => a.id === account.id).length > 0){
+                    let tweets = await twitter.getUserTimeline(user);
+                    account.latestTweet = tweets[0].id;
                     structures.twitterAccounts.push(account);
-                    database.trackTwitterAccount(account);
+                    database.updateFollowedAccount(account);
                   }
                   else{
                     throw new Error("Twitter Account already followed");
@@ -264,7 +265,6 @@ function addTwitterAccount(message){
 
     collector.on('end', () => {
         console.log(`Twitter accounts message collector finished!`);
-        message.author.send("Input time expired, enter the command again for further entries.");
     });
 }
 

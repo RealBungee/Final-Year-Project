@@ -1,9 +1,10 @@
 import needle from 'needle';
+import config from '../config.js';
 
 //accepts user object only
 //user object is then completed with the needed information
 //this is used to retrieve username and id for easier requests in the future
-async function getUserInfo(token, user) {
+async function getUserInfo(user) {
 
     const endpointURL = "https://api.twitter.com/2/users/by?usernames=";
 
@@ -20,7 +21,7 @@ async function getUserInfo(token, user) {
     const res = await needle('get', endpointURL, params, {
         headers: {
             "User-Agent": "v2UserLookupJS",
-            "authorization": `Bearer ${token.bearerToken}`
+            "authorization": `Bearer ${config.twitterKeys.bearerToken}`
         }
     });
 

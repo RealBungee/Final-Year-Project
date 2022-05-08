@@ -1,12 +1,18 @@
 import structures from '../data/structures.js'
 import { MessageEmbed } from 'discord.js';
 
-async function notifyUsers(user, tweet){
-    let tweetUrl = `https://twitter.com/${user.username}/status/${tweet.data[0].id}`;
+async function notifyUser(user, tweet, keyword){
+    let tweetUrl = `https://twitter.com/${user.username}/status/${tweet.id}`;
+    let description= '';
+    if(keyword != undefined){
+      description = `User: ${user.username} has mentioned ${keyword} in their tweet!`;
+    } else {
+      description = `New tweet by ${user.username}`;
+    }
     const notificationEmbed = new MessageEmbed()
       .setColor('#0099ff')
       .setTitle('New tweet mention alert!')
-      .setDescription(`User: ${user.username} has mentioned DOGE in their tweet!`)
+      .setDescription(description)
       .setThumbnail(tweetUrl)
       .addField('Tweet Link', tweetUrl, true);
     for(let u of structures.discordUsers){
@@ -15,5 +21,5 @@ async function notifyUsers(user, tweet){
   }
 
   export {
-    notifyUsers
+    notifyUser
   }
