@@ -10,6 +10,7 @@ import events from './events/index.js';
 import ping from './commands/ping.js';
 import server from './commands/server.js';
 import helperFunctions from './helperFunctions/index.js';
+import structures from './data/structures.js';
 
 //create discord Client with needed Intents and Partials
 const client = new Client({ 
@@ -35,6 +36,7 @@ client.on('ready', async () => {
 
   console.log("Fetching registered users.");
   await helperFunctions.database.getRegisteredUsers();
+  console.log(structures.registeredUsers);
 
   console.log("Fetching discord user objects for registered users");
   await helperFunctions.getDiscordUsers(client);
@@ -49,7 +51,8 @@ client.on('ready', async () => {
   await twitter.getLatestTweet(twitterTestAccount);
 
   console.log(`Received all tracked users' most recent tweets. Starting the new tweet checking function.`);
-  twitter.checkForNewTweets(twitterTestAccount)
+  for(t of structures.twitterAccounts)
+  twitter.checkForNewTweets(t);
 
   console.log(`Starting the private message listener.`);
   events.messageListener(client);

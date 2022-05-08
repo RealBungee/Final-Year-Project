@@ -38,6 +38,7 @@ function checkIfRegistered(user){
       id: user.id,
       allowTrading: false,
       notifications: false,
+      followedAccounts: new Map(),
       binanceApiKey: '',
       binanceApiSecret: '',
     }

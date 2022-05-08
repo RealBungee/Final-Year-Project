@@ -30,7 +30,6 @@ async function getUserInfo(token, user) {
         user.name = res.body.data[0].name;
         user.username = res.body.data[0].username;
         user.lastTweet = '';
-        user.subscribedUsers = [""];
         return user;
     } else {
         throw new Error('Unsuccessful request');

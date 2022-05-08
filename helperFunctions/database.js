@@ -20,6 +20,10 @@ var userSchema = new mongoose.Schema({
   id: String,
   allowTrading: Boolean,
   notifications: Boolean,
+  followedAccounts: {
+    type: Map,
+    of: [String]
+  },
   binanceApiKey: String,
   binanceApiSecret: String
 });
@@ -28,10 +32,7 @@ var twitterAccountSchema = new mongoose.Schema({
   id: String,
   name: String,
   username: String,
-  latestTweet: String,
-  subscribedUsers: [{
-    type: String
-  }]
+  latestTweet: String
 });
 
 var registeredUsers = mongoose.model('registeredUsers', userSchema);
@@ -64,11 +65,18 @@ async function deregisterUser(user){
   } 
 }
 
-function updateUserData(u){
-  let user = new registeredUsers(u);
+async function updateUserData(u){
   try{
-    registeredUsers.deleteOne({ id: u.id });
-    user.save();
+    await registeredUsers.deleteOne({ id: u.id });
+    let user = new registeredUsers(u);
+    const iterator = u.followedAccounts.entries();
+
+    let result = iterator.next();
+    while(!result.done){
+      user.set(result.value)
+      result = iterator.next();
+    }
+    await user.save();
   } catch(err){
     console.log(`Error updating user data...`);
   }

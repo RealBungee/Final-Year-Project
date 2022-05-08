@@ -1,112 +1,175 @@
 import twitter from '../twitter/index.js';
 import config from '../config.js';
-import helperFunctions from '../helperFunctions/index.js';
 import structures from '../data/structures.js';
 import { MessageActionRow, MessageButton } from 'discord.js';
+import database from '../helperFunctions/database.js';
 
 async function followAccount(message){
-    console.log(`Follow Account Command Enacted by ${message.author.username}`);
-
-    let replyString  = `Please choose from the available twitter accounts: `;
+    const rows = [new MessageActionRow()];
+    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    let labels = [];
+    
+    let rowIndex = 0;
     for(let t of structures.twitterAccounts){
-        if(t.subscribedUsers.filter(user => user == message.author.id).length < 1){
-            replyString += `"${t.username}", `;
-        }   
+        if(rows[rowIndex].components.length == 5){
+            rows.push(new MessageActionRow());
+            rowIndex++;
+        }
+        if(user.followedAccounts.get(t.username) === undefined){
+            rows[rowIndex].addComponents( new MessageButton()
+                    .setCustomId(t.username)
+                    .setLabel(t.username)
+                    .setStyle('PRIMARY'),
+            );
+            labels.push(t.username);
+        }
     }
-    replyString = replyString.slice(0, -2);
-    replyString += `!`;
-    message.reply(replyString);
+    if(rows[rowIndex].components.length == 5){
+        rows.push(new MessageActionRow());
+        rowIndex++;
+    }
+    rows[rowIndex].addComponents( new MessageButton()
+        .setCustomId('Stop Interaction')
+        .setLabel('Stop Interaction')
+        .setStyle('DANGER'),
+    );
+    labels.push('Stop Interaction');
+    
+    let content  = `Please choose from the available twitter accounts: `;
+    message.reply({ content, components: rows });
+    
+    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === message.author.id;
+    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    let account = '';
 
-    let filter = m => m.author != '815660797236740121';
-    message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
-		.then(collected => {
-            let iterator = collected.entries();
-            let twitterAccountUsername = iterator.next().value[1].content;
-            try{
-                if(structures.twitterAccounts.filter(a => a.username === twitterAccountUsername).length > 0){
-                    message.reply(`Successfully subscribed to ${twitterAccountUsername}`);
-                    message.reply(`Please enter a keyword you want to look for in ${twitterAccountUsername}'s tweets!`);
-                    awaitKeywords(message, filter);
-                } else{
-                    message.reply(`Twitter account not avaliable. Make sure there were no mistakes!`);
-                    followAccount(message);
-                    throw new Error('Entered username does not exist in the available twitter account list!');
+    collector.on('collect', async i => {
+        if(i.customId === 'Stop Interaction'){
+            await i.reply(`Interaction stopped!`);
+        } else {
+            const row = new MessageActionRow()
+                .addComponents( new MessageButton()
+                    .setCustomId('Select keywords')
+                    .setLabel('Select keywords')
+                    .setStyle('SUCCESS'))
+                .addComponents( new MessageButton()
+                    .setCustomId('Stop Interaction')
+                    .setLabel('Stop Interaction')
+                    .setStyle('DANGER'))
+                .addComponents( new MessageButton()
+                    .setCustomId('Select Another')
+                    .setLabel('Select Another Account')
+                    .setStyle('SECONDARY'))
+
+            account = i.customId;
+            content = `You selected "${i.customId}".`
+            labels = [... labels, 'Select keywords',  'Select Another'];
+            i.reply({ content, components: [row]});
+
+            const coll = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1});
+
+            coll.on('collect', async i => {
+                if(i.customId === 'Stop Interaction'){
+                    await i.reply(`Interaction stopped!`);
+                } else if(i.customId === 'Select keywords'){
+                    i.reply('Please enter the keyword you are looking for');
+                    let keywordFilter = m => m.author.id != '815660797236740121';
+                    let keywords = [];
+                    awaitKeywords(message, keywordFilter, account, keywords);
                 }
-            } catch (err){
-                console.log(err);
-            }
-		})
-        .catch((err)  => {
-            console.log(err);
-        });
+                else{
+                    i.reply('Restarting the process.');
+                    followAccount(message);
+                }
+            });
+        }
+    });
 }
 
 async function addKeyword(message){
-    let replyString  = `Please choose which subscribed account you would like to add keywords for: "elonmusk", "smileycapital", "test66664599"!`;
-    message.reply(replyString);
+    const rows = [new MessageActionRow()];
+    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    const iterator = user.followedAccounts.keys();
+    
+    let labels = [];
+    let account = '';
+    let rowIndex = 0;
+    let content  = `Please choose one of your followed twitter accounts: `;
+    let result = iterator.next();
+    while(!result.done){
+        if(rows[rowIndex].components.length == 5){
+            rows.push(new MessageActionRow());
+            index++;
+        }
+        rows[rowIndex].addComponents( new MessageButton()
+                    .setCustomId(result.value)
+                    .setLabel(result.value)
+                    .setStyle('PRIMARY'),
+            );
+        labels.push(result.value);
+        result= iterator.next();
+    }
 
-    let filter = m => m.author != '815660797236740121';
-    message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
-		.then(collected => {
-            let iterator = collected.entries();
-            let string = iterator.next().value[1].content;
-            try{
-                if(string == 'elonmusk' || string == 'smileycapital' || string == 'test66664599'){
-                    message.reply(`Collecting keyword for account ${string}. Please enter your keyword.`);
-                    awaitKeywords(message, filter);
-                } else{
-                    message.reply(`Twitter account not avaliable. Make sure there were no mistakes!`);
-                    addKeyword(message);
-                    throw new Error('Entered username does not exist in the available twitter account list!');
-                }
-            } catch (err){
-                console.log(err);
-            }
-		})
-        .catch((err)  => {
-            console.log(err);
-        });
+    if(rows[rowIndex].components.length == 5){
+        rows.push(new MessageActionRow());
+        rowIndex++;
+    }
+    rows[rowIndex].addComponents( new MessageButton()
+        .setCustomId('Stop Interaction')
+        .setLabel('Stop Interaction')
+        .setStyle('DANGER'),
+    );
+    message.reply({ content, components: rows });
+
+    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === message.author.id;
+    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+
+    collector.on('collect', async i => {
+        if(i.customId === 'Stop Interaction'){
+            await i.reply(`Interaction stopped!`);
+        } else {
+            account = i.customId;
+            let keywordFilter = m => m.author.id != '815660797236740121';
+            let keywords = user.followedAccounts.get(account);
+            i.reply(`Collecting keywords for account ${account}. Please enter your keyword.`);
+            awaitKeywords(message, keywordFilter, account, keywords);
+        }
+    });
 }
 
 //helper function for followAccount and addKeywords functions
-async function awaitKeywords(message, filter){
+async function awaitKeywords(message, filter, account, keywords){
     message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
         .then(async collected => {
-            let iterator = collected.entries();
-            let string = iterator.next().value[1].content;
-            
-            if(string == "stop"){
+            const keyword = collected.entries().next().value[1].content;
+            if(keyword == 'stop'){
+                if(keywords.length > 0){
+                    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+                    user.followedAccounts.set(account, keywords);
+                    database.updateUserData(user);
+                }
                 message.reply('Interaction stopped.');
-                throw new Error('User stopped keyword interaction.');
             } else{
-                message.reply(`Saving keyword "${string}". If you wish to add more keywords just type another keyword, otherwise type stop or just ignore this message.`);
-                awaitKeywords(message, filter);
+                keywords.push(keyword);
+                message.reply(`Saving keyword "${keyword}". If you wish to add more keywords type another, type stop to stop interaction or just ignore this message.`);
+                awaitKeywords(message, filter, account, keywords);
             }
         })
-        .catch((err) => {
-            console.log(err);
-        })
+        .catch((err) => { console.log(err)});
 }
 
-function deregister(message){
-    let index = structures.discordUsers.indexOf(message.author);
-    if (index > -1){
-        console.log("Deregistering user");
+function deregister(m){
+    if (structures.discordUsers.indexOf(m.author) > -1){
+        database.deregisterUser(m.author);
         structures.discordUsers.splice(index, 1);
         structures.registeredUsers.splice(index, 1);
-        helperFunctions.database.deregisterUser(message.author);
-        message.author.send(`You have succesfully deregistered from the bot. We're sad to see you go!`);
+        m.author.send(`You have succesfully deregistered from the bot. We're sad to see you go!`);
       }
 }
 
-function notifications(message){
-    let index = structures.registeredUsers.findIndex(u => { 
-        return u.id === message.author.id; 
-    });
-    let notificationSetting = structures.registeredUsers[index].notifications;
-    let label = "";
-    label = notificationSetting ? 'Enable Notifications' : 'Disable Notifications';
-
+function notifications(m){
+    const index = structures.registeredUsers.findIndex(u => { return u.id === m.author.id; });
+    const notifications = structures.registeredUsers[index].notifications;
+    const label = notifications ? 'Disable Notifications' : 'Enable Notifications';
     const row  = new MessageActionRow()
     .addComponents(
         new MessageButton()
@@ -119,17 +182,17 @@ function notifications(message){
             .setStyle('DANGER'),
     );
 
-    let content = notificationSetting ? 'Enabled' : 'Disabled'
-    message.reply({ content: `Notifications are currently ${content}.\nClick on the "${label}" button to ${label} or click on "Stop" button to stop interaction.`, components: [row] })
+    let content = notifications ? 'Enabled' : 'Disabled';
+    m.reply({ content: `Notifications are currently ${content}.\nClick on the "${label}" button to ${label} or click on "Stop" button to stop interaction.`, components: [row] })
     
-    let filter = i => i.customId === label || i.customId === 'Stop' && i.user.id === message.author.id;
-
-    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000 });
+    const filter = i => i.customId === label || i.customId === 'Stop' && i.user.id === m.author.id;
+    const collector = m.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
 
     collector.on('collect', async i => {
         if(i.customId === label){
-            structures.registeredUsers[index].notifications = notificationSetting ? false : true;
-            helperFunctions.database.updateUserData(structures.registeredUsers[index]);
+            content = !notifications ? 'Enabled' : 'Disabled';
+            structures.registeredUsers[index].notifications = !notifications;
+            database.updateUserData(structures.registeredUsers[index]);
             await i.reply(`Changed the notification settings to ${content}`);
         } else {
             await i.reply('Interaction stopped!');
@@ -138,8 +201,6 @@ function notifications(message){
 }
 
 async function enableTrading(message){
-    console.log(`Allowing trading for user ${message.author.username}`);
-
     message.author.send(`Generate you API key with setting "Trading" allowed\nPlease enter your API data. Enter API key first.`);
     let filter = m => m.author != '815660797236740121';
     let key, secret;
@@ -148,13 +209,11 @@ async function enableTrading(message){
 		.then(collected => {
             let iterator = collected.entries();
             key = iterator.next().value[1].content;
-
-            message.reply('Now please enter your API Secret.');
+            message.reply('Enter your API Secret.');
             message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
             .then(async collected => {
                 let iterator = collected.entries();
                 secret = iterator.next().value[1].content;
-                console.log(`User entered API keys, checking validity`);
                 message.reply(`Your entered API key: ${key}, and your secret: ${secret}`);
                 //let res = await binance.getAccountInformation(key, secret);
                 message.reply(`Successfully established connection to exchange! News Trading is now enabled.`)
@@ -162,10 +221,6 @@ async function enableTrading(message){
             .catch((err) => {
                 console.log(err);
             })
-            
-            //let index = structures.registeredUsers.findIndex( ({id}) => id === message.channel.author.id);
-            
-            //helperFunctions.database.enableTrading();
 		})
         .catch(() => {
             console.log(`User interaction finished`);
@@ -191,12 +246,12 @@ function addTwitterAccount(message){
                 console.log(`Attempting to track ${account.username}`);
                 if(!structures.twitterAccounts.filter(a => a.id === account.id).length > 0){
                     structures.twitterAccounts.push(account);
-                    helperFunctions.database.trackTwitterAccount(account);
+                    database.trackTwitterAccount(account);
                   }
                   else{
-                    throw new Error("Twitter Account already tracked");
+                    throw new Error("Twitter Account already followed");
                   }
-                message.reply(`Successfully tracked new twitter account`);
+                message.reply(`Successfully followed new twitter account`);
             } catch(error){
                 console.log(error);
                 message.reply(`Error tracking twitter account: ${error}`);
