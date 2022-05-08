@@ -76,7 +76,6 @@ async function followAccount(message){
                     awaitKeywords(message, keywordFilter, account, keywords);
                 }
                 else{
-                    i.reply('Restarting the process.');
                     followAccount(message);
                 }
             });

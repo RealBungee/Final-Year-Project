@@ -19,17 +19,13 @@ function checkForNewTweets(twitterAccount){
     for(let t of tweets){
       for(let u of structures.registeredUsers){
         let keywords = u.followedAccounts.get(twitterAccount.username);
-        //if the map returns undefined on twitterAccount.username then do nothing
-        console.log(keywords);
         if(keywords != undefined ){
-          if(keywords.length == 0 && u.notifications){
-            notifyUser(twitterAccount, t);
+          if(keywords.length === 0 && u.notifications){
+            notifyUser(u, twitterAccount, t);
           } else if(keywords.length > 0){
-            console.log(`Checking for mentions of user keywords in retrieved tweets`);
             for(let k of keywords){
-              if(t.text.toLowerCase().includes(k)){
-                console.log(`${twitterAccount.username} has mentioned ${k} in their tweet!`);
-                notifyUser(twitterAccount, t, k);
+              if(t.text.toLowerCase().includes(k.toLowerCase())){
+                notifyUser(u, twitterAccount, t, k);
               }
             }
           }

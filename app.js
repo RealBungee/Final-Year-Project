@@ -17,14 +17,6 @@ const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES], 
   partials: ["MESSAGE", "CHANNEL", "REACTION"]});
 
-//example twitter accounts objects
-var twitterTestAccount = {
-  id: '1256716686',
-  name: 'TestingAccount',
-  username: 'test66664599',
-  latestTweet: ''
-}
-
 //Actions to perform when Bot comes online
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -36,7 +28,6 @@ client.on('ready', async () => {
 
   console.log("Fetching registered users.");
   await helperFunctions.database.getRegisteredUsers();
-  console.log(structures.registeredUsers);
 
   console.log("Fetching discord user objects for registered users");
   await helperFunctions.getDiscordUsers(client);

@@ -28,8 +28,7 @@ const getUserTimeline = async(user) => {
     let params = {
         "tweet.fields": "created_at",
         "expansions": "author_id",
-        "media.fields": "url",
-        "max_results": 20
+        "media.fields": "url"
     }
 
     if(!user.latestTweet == ''){
