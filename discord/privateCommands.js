@@ -45,11 +45,16 @@ async function followAccount(message){
         if(i.customId === 'Stop Interaction'){
             await i.reply(`Interaction stopped!`);
         } else {
+            account = i.customId;
             const row = new MessageActionRow()
                 .addComponents( new MessageButton()
                     .setCustomId('Select keywords')
-                    .setLabel('Select keywords')
+                    .setLabel('Select Keywords')
                     .setStyle('SUCCESS'))
+                .addComponents( new  MessageButton()
+                    .setCustomId('No Keywords')
+                    .setLabel('Subscribe to All Tweets')
+                    .setStyle('PRIMARY'))
                 .addComponents( new MessageButton()
                     .setCustomId('Stop Interaction')
                     .setLabel('Stop Interaction')
@@ -58,10 +63,8 @@ async function followAccount(message){
                     .setCustomId('Select Another')
                     .setLabel('Select Another Account')
                     .setStyle('SECONDARY'))
-
-            account = i.customId;
             content = `You selected "${i.customId}".`
-            labels = [... labels, 'Select keywords',  'Select Another'];
+            labels = [... labels, 'Select keywords', 'No Keywords', 'Select Another'];
             i.reply({ content, components: [row]});
 
             const coll = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1});
@@ -74,6 +77,11 @@ async function followAccount(message){
                     let keywordFilter = m => m.author.id != '815660797236740121';
                     let keywords = [];
                     awaitKeywords(message, keywordFilter, account, keywords);
+                } else if(i.customId === 'No Keywords'){
+                    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+                    user.followedAccounts.set(account, []);
+                    database.updateFollowedAccount(user);
+                    i.reply(`Followed ${account} with no tracked keywords!`);
                 }
                 else{
                     followAccount(message);
@@ -81,6 +89,134 @@ async function followAccount(message){
             });
         }
     });
+}
+
+async function keywords(message){
+    const row = new MessageActionRow()
+      .addComponents(new MessageButton()
+        .setCustomId('Add Keyword')
+        .setLabel('Add Keyword')
+        .setStyle('SUCCESS'))
+      .addComponents(new MessageButton()
+        .setCustomId('List Keywords')
+        .setLabel('List Keywords')
+        .setStyle('PRIMARY'))
+      .addComponents(new MessageButton()
+        .setCustomId('Stop Interaction')
+        .setLabel('Stop Interaction')
+        .setStyle('DANGER'));
+
+    const labels = ['Add Keyword',  'List Keywords', 'Stop Interaction'];
+    const content = `Pick from the following options:`;
+    message.reply({ content, components: [row] });
+
+    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === message.author.id;
+    const collector = message.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
+
+    collector.on('collect', async i => {
+        if(i.customId == 'Add Keyword'){
+            addKeyword(message);
+        } else if(i.customId == 'List Keywords'){
+            pickAccount(message);
+        } else{
+            i.reply('Interaction Finished!');
+        }
+    })
+}
+
+async function pickAccount(message){
+    const rows = [new MessageActionRow()];
+    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    let labels = [];
+    let iterator = user.followedAccounts.keys();
+    let result = iterator.next();
+    let rowIndex = 0;
+
+    while(!result.done){
+        if(rows[rowIndex].components.length == 5){
+            rows.push(new MessageActionRow());
+            rowIndex++;
+        }
+        rows[rowIndex].addComponents( new MessageButton()
+                .setCustomId(result.value)
+                .setLabel(result.value)
+                .setStyle('PRIMARY'),
+        );
+        labels.push(result.value);
+        result = iterator.next();
+    }
+    if(rows[rowIndex].components.length == 5){
+        rows.push(new MessageActionRow());
+        rowIndex++;
+    }
+    rows[rowIndex].addComponents( new MessageButton()
+        .setCustomId('Stop Interaction')
+        .setLabel('Stop Interaction')
+        .setStyle('DANGER'),
+    );
+    labels.push('Stop Interaction');
+
+    let content  = `Choose which account you would like to list keywords for: `;
+    message.reply({ content, components: rows });
+
+    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === message.author.id;
+    const collector = message.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
+
+    collector.on('collect', async i => {
+        if(i.customId == 'Stop Interaction'){
+            i.reply('Interaction Finished!');
+        } else {
+            listKeywords(i, user, i.customId);
+        }
+    })
+}
+
+async function listKeywords(interaction, user, account){
+    const keywords = user.followedAccounts.get(account);
+    const rows = [new MessageActionRow()];
+    let labels = [];
+    let rowIndex = 0;
+
+    for(let k of keywords){
+        if(rows[rowIndex].components.length == 5){
+            rows.push(new MessageActionRow());
+            rowIndex++;
+        }
+        rows[rowIndex].addComponents( new MessageButton()
+                .setCustomId(k)
+                .setLabel(k)
+                .setStyle('DANGER'),
+        );
+        labels.push(k);
+    }
+    if(rows[rowIndex].components.length == 5){
+        rows.push(new MessageActionRow());
+        rowIndex++;
+    }
+    rows[rowIndex].addComponents( new MessageButton()
+        .setCustomId('Stop Interaction')
+        .setLabel('Stop Interaction')
+        .setStyle('SUCCESS'),
+    );
+    labels.push('Stop Interaction');
+    let content = `Click on the keyword you would like to remove:`;
+    interaction.reply({ content, components: rows});
+
+    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
+
+    collector.on('collect', async i => {
+        if(i.customId == 'Stop Interaction'){
+            i.reply('Interaction Finished!');
+        } else {
+            let index = keywords.findIndex(k => k == i.customId);
+            keywords.splice(index, 1);
+            console.log(keywords);
+            user.followedAccounts.set(account, keywords);
+            database.updateFollowedAccount(user);
+            listKeywords(i, user, account);
+        }
+    })
 }
 
 async function addKeyword(message){
@@ -139,24 +275,28 @@ async function awaitKeywords(message, filter, account, keywords){
     message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
         .then(async collected => {
             const keyword = collected.entries().next().value[1].content;
-            if(keyword == 'stop'){
-                if(keywords.length > 0){
-                    const user = structures.registeredUsers.find(u => u.id == message.author.id);
-                    user.followedAccounts.set(account, keywords);
-                    database.updateFollowedAccount(user);
-                }
+            
+            if(keyword == 'stop' && keywords.length > 0){
+                const user = structures.registeredUsers.find(u => u.id == message.author.id);
+                user.followedAccounts.set(account, keywords);
+                database.updateFollowedAccount(user);
                 message.reply('Interaction stopped.');
-            } else{
-                keywords.push(keyword);
-                message.reply(`Saving keyword "${keyword}". If you wish to add more keywords type another, type stop to stop interaction or just ignore this message.`);
-                awaitKeywords(message, filter, account, keywords);
+                return;
             }
+
+            if(!keywords.includes(keyword)){
+                keywords.push(keyword);
+                message.reply(`Saving keyword "${keyword}". Type another keyword or type stop to stop interaction.`);
+            }
+            awaitKeywords(message, filter, account, keywords);
+            message.reply(`The entered keyword has already been added. Type another or type stop.`);
         })
         .catch((err) => { console.log(err)});
 }
 
 function deregister(m){
-    if (structures.discordUsers.indexOf(m.author) > -1){
+    const index = structures.discordUsers.indexOf(m.author);
+    if (index > -1){
         database.deregisterUser(m.author);
         structures.discordUsers.splice(index, 1);
         structures.registeredUsers.splice(index, 1);
@@ -226,14 +366,12 @@ async function enableTrading(message){
 }
 
 async function addTwitterAccount(message){
-    // `m` is a message object that will be passed through the filter function
-    message.reply('Please enter twitter username without the "@" handle. You have 30 seconds.');
+    message.reply('Please enter twitter username without "@" handle. You have 30 seconds.');
 
     let filter = m => m.author != '815660797236740121';
     const collector = message.channel.createMessageCollector({ filter, max: 1, time: 30000 });
 
     collector.on('collect', async m => {
-        console.log(`Colleted message with message collector. Looking for twitter user ${m.content}`);
         let user = {
             username: m.content
         };
@@ -243,22 +381,24 @@ async function addTwitterAccount(message){
             try{
                 console.log(`Attempting to track ${account.username}`);
                 if(!structures.twitterAccounts.filter(a => a.id === account.id).length > 0){
+                    m.reply('Found twitter account, gathering timeline.');
                     let tweets = await twitter.getUserTimeline(user);
                     account.latestTweet = tweets[0].id;
                     structures.twitterAccounts.push(account);
-                    database.updateFollowedAccount(account);
+                    database.trackTwitterAccount(account);
+                    twitter.checkForNewTweets(account);
                   }
                   else{
                     throw new Error("Twitter Account already followed");
                   }
-                message.reply(`Successfully followed new twitter account`);
+                m.reply(`Successfully followed new twitter account`);
             } catch(error){
                 console.log(error);
-                message.reply(`Error tracking twitter account: ${error}`);
+                m.reply(`Error tracking twitter account: ${error}`);
             }
         } catch(err){
                 console.log(err);
-                message.reply(`Failed to find twitter account with username: "${m.content}"`);
+                m.reply(`Failed to find twitter account with username: "${m.content}"`);
             }
     });
 
@@ -272,6 +412,6 @@ export default{
     deregister,
     enableTrading,
     addTwitterAccount,
-    addKeyword,
+    keywords,
     notifications
 }

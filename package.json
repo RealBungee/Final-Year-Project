@@ -9,6 +9,7 @@
   "author": "Nikola Banek",
   "license": "ISC",
   "dependencies": {
+    "@binance/connector": "^1.9.2",
     "@discordjs/builders": "^0.7.0",
     "@discordjs/rest": "0.1.0-canary.0",
     "@keyv/mongo": "^2.0.0",
@@ -23,7 +24,6 @@
     "oauth-1.0a": "^2.2.6"
   },
   "devDependencies": {
-    "@binance/connector": "^0.0.1-security",
     "eslint": "^8.7.0"
   },
   "type": "module"

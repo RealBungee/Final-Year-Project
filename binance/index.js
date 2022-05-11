@@ -1,4 +1,4 @@
-//import { Spot } from '@binance/connector';
+import { Spot } from '@binance/connector';
 
 async function getAccountInformation(apiKey, apiSecret){
     const client = new Spot(apiKey, apiSecret);
