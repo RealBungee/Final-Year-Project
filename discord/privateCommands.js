@@ -247,7 +247,7 @@ async function listKeywords(interaction, user, account){
         .setStyle('SUCCESS'),
     );
     labels.push('Stop Interaction');
-    let content = `Click on the keyword you would like to remove:`;
+    let content = `Selected: ${account}.\nClick on the keyword you would like to remove:`;
     interaction.reply({ content, components: rows});
 
     const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
