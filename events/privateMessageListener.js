@@ -14,7 +14,7 @@ const helpEmbed = new MessageEmbed()
     .addField('deregister', `Deregister from the bot - removes all your data (API keys, preferences, etc.)`, true)
     .addField('notifications', 'Enable notifications of all new tweets from your subscribed accounts.', true);
 
-const commands = ['followAccount', 'enableTrading', 'deregister', 'keywords', 'notifications'];
+const commands = ['followAccount', 'enableTrading', 'deregister', 'keywords', 'notifications', 'unfollowAccount'];
 
 function messageListener(client){
     client.on('messageCreate', message => {

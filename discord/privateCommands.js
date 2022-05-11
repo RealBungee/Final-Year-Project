@@ -91,6 +91,54 @@ async function followAccount(message){
     });
 }
 
+async function unfollowAccount(message){
+    const rows = [new MessageActionRow()];
+    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    let labels = [];
+    
+    let rowIndex = 0;
+    for(let t of structures.twitterAccounts){
+        if(rows[rowIndex].components.length == 5){
+            rows.push(new MessageActionRow());
+            rowIndex++;
+        }
+        if(user.followedAccounts.get(t.username) != undefined){
+            rows[rowIndex].addComponents( new MessageButton()
+                    .setCustomId(t.username)
+                    .setLabel(t.username)
+                    .setStyle('PRIMARY'),
+            );
+            labels.push(t.username);
+        }
+    }
+    if(rows[rowIndex].components.length == 5){
+        rows.push(new MessageActionRow());
+        rowIndex++;
+    }
+    rows[rowIndex].addComponents( new MessageButton()
+        .setCustomId('Stop Interaction')
+        .setLabel('Stop Interaction')
+        .setStyle('DANGER'),
+    );
+    labels.push('Stop Interaction');
+    
+    let content  = `Click on the account you'd like to unfollow: `;
+    message.reply({ content, components: rows });
+
+    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === message.author.id;
+    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+
+    collector.on('collect', async i => {
+        if(i.customId === 'Stop Interaction'){
+            await i.reply(`Interaction stopped!`);
+        }
+        
+        user.followedAccounts.delete(i.customId);
+        database.updateFollowedAccount(user);
+        i.reply(`Successfully unfollowed ${i.customId}`);
+    });
+}
+
 async function keywords(message){
     const row = new MessageActionRow()
       .addComponents(new MessageButton()
@@ -274,7 +322,7 @@ async function addKeyword(message){
 async function awaitKeywords(message, filter, account, keywords){
     message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
         .then(async collected => {
-            const keyword = collected.entries().next().value[1].content;
+            const keyword = collected.entries().next().value[1].content.toLowerCase();
             
             if(keyword == 'stop' && keywords.length > 0){
                 const user = structures.registeredUsers.find(u => u.id == message.author.id);
@@ -284,12 +332,13 @@ async function awaitKeywords(message, filter, account, keywords){
                 return;
             }
 
-            if(!keywords.includes(keyword)){
+            if(keywords.includes(keyword)) {
+                message.reply(`The entered keyword has already been added. Type another or type stop.`);
+            } else{
                 keywords.push(keyword);
                 message.reply(`Saving keyword "${keyword}". Type another keyword or type stop to stop interaction.`);
             }
             awaitKeywords(message, filter, account, keywords);
-            message.reply(`The entered keyword has already been added. Type another or type stop.`);
         })
         .catch((err) => { console.log(err)});
 }
@@ -413,5 +462,6 @@ export default{
     enableTrading,
     addTwitterAccount,
     keywords,
-    notifications
+    notifications,
+    unfollowAccount
 }
