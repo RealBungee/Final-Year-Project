@@ -48,6 +48,8 @@ client.on('ready', async () => {
 
   console.log(`Starting the private message listener.`);
   events.messageListener(client);
+  console.log(`Starting the slash command listener.`);
+  events.slashCommandListener(client);
 });
 
 client.login(config.token);
