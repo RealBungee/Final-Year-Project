@@ -1,5 +1,5 @@
 import { getUserTimeline } from './getUserTimeline.js';
-import { notifyUser } from '../discord/notifyUsers.js';
+import { notifyUser } from '../discord/notifyUser.js';
 import structures from '../data/structures.js';
 import database from '../helperFunctions/database.js';
 

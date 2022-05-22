@@ -7,8 +7,6 @@ import { Client, Intents, Collection } from 'discord.js';
 import twitter from './twitter/index.js';
 import discord from './discord/index.js';
 import events from './events/index.js';
-import ping from './commands/ping.js';
-import server from './commands/server.js';
 import helperFunctions from './helperFunctions/index.js';
 import structures from './data/structures.js';
 
@@ -23,8 +21,6 @@ client.on('ready', async () => {
 
   //load in slash Commands
   client.commands = new Collection();
-  client.commands.set(ping.data.name, {execute:ping.execute});
-  client.commands.set(server.data.name, {execute:server.execute});
 
   console.log("Fetching registered users.");
   await helperFunctions.database.getRegisteredUsers();
