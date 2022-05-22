@@ -1,6 +1,6 @@
 import structures from '../data/structures.js';
 import database from '../helperFunctions/database.js';
-import awaitKeywords from '../keywordHelper.js';
+import { awaitKeywords } from './keywordHelper.js';
 import { MessageActionRow, MessageButton } from 'discord.js';
 
 
