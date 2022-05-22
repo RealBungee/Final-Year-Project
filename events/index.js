@@ -1,5 +1,5 @@
 import { messageListener } from './privateMessageListener.js';
-import { slashCommandListener } from './interactionListener.js';
+import { slashCommandListener } from './slashCommandListener.js';
 
 export default{
     messageListener,
