@@ -4,7 +4,7 @@ import { awaitKeywords } from './keywordHelper.js';
 import { MessageActionRow, MessageButton } from 'discord.js';
 
 
-async function keywords(message){
+async function keywords(interaction){
     const row = new MessageActionRow()
       .addComponents(new MessageButton()
         .setCustomId('Add Keyword')
@@ -21,25 +21,25 @@ async function keywords(message){
 
     const labels = ['Add Keyword',  'List Keywords', 'Stop Interaction'];
     const content = `Pick from the following options:`;
-    message.reply({ content, components: [row] });
+    interaction.reply({ content, components: [row] });
 
-    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === message.author.id;
-    const collector = message.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
+    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
 
     collector.on('collect', async i => {
         if(i.customId == 'Add Keyword'){
-            addKeyword(message);
+            addKeyword(interaction);
         } else if(i.customId == 'List Keywords'){
-            pickAccount(message);
+            pickAccount(interaction);
         } else{
             i.reply('Interaction Finished!');
         }
     })
 }
 
-async function pickAccount(message){
+async function pickAccount(interaction){
     const rows = [new MessageActionRow()];
-    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    const user = structures.registeredUsers.find(u => u.id == interaction.user.id);
     let labels = [];
     let iterator = user.followedAccounts.keys();
     let result = iterator.next();
@@ -70,10 +70,10 @@ async function pickAccount(message){
     labels.push('Stop Interaction');
 
     let content  = `Choose which account you would like to list keywords for: `;
-    message.reply({ content, components: rows });
+    interaction.followUp({ content, components: rows });
 
-    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === message.author.id;
-    const collector = message.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
+    const filter = i => i.customId == labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({filter, time: 15000, max: 1});
 
     collector.on('collect', async i => {
         if(i.customId == 'Stop Interaction'){
@@ -124,7 +124,6 @@ async function listKeywords(interaction, user, account){
         } else {
             let index = keywords.findIndex(k => k == i.customId);
             keywords.splice(index, 1);
-            console.log(keywords);
             user.followedAccounts.set(account, keywords);
             database.updateFollowedAccount(user);
             listKeywords(i, user, account);
@@ -132,9 +131,9 @@ async function listKeywords(interaction, user, account){
     })
 }
 
-async function addKeyword(message){
+async function addKeyword(interaction){
     const rows = [new MessageActionRow()];
-    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    const user = structures.registeredUsers.find(u => u.id == interaction.user.id);
     const iterator = user.followedAccounts.keys();
     
     let labels = [];
@@ -165,10 +164,10 @@ async function addKeyword(message){
         .setLabel('Stop Interaction')
         .setStyle('DANGER'),
     );
-    message.reply({ content, components: rows });
+    interaction.followUp({ content, components: rows });
 
-    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === message.author.id;
-    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
 
     collector.on('collect', async i => {
         if(i.customId === 'Stop Interaction'){
@@ -178,7 +177,7 @@ async function addKeyword(message){
             let keywordFilter = m => m.author.id != '815660797236740121';
             let keywords = user.followedAccounts.get(account);
             i.reply(`Collecting keywords for account ${account}. Please enter your keyword.`);
-            awaitKeywords(message, keywordFilter, account, keywords);
+            awaitKeywords(interaction, keywordFilter, account, keywords);
         }
     });
 }
