@@ -1,11 +1,12 @@
 import structures from '../data/structures.js';
 import database from '../helperFunctions/database.js';
+import { awaitKeywords } from './keywordHelper.js';
 import { MessageActionRow, MessageButton } from 'discord.js';
 
 
-async function followAccount(message){
+async function follow(interaction){
     const rows = [new MessageActionRow()];
-    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    const user = structures.registeredUsers.find(u => u.id == interaction.user.id);
     let labels = [];
     
     let rowIndex = 0;
@@ -35,10 +36,10 @@ async function followAccount(message){
     labels.push('Stop Interaction');
     
     let content  = `Please choose from the available twitter accounts: `;
-    message.reply({ content, components: rows });
+    interaction.reply({ content, components: rows });
     
-    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === message.author.id;
-    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
     let account = '';
 
     collector.on('collect', async i => {
@@ -67,7 +68,7 @@ async function followAccount(message){
             labels = [... labels, 'Select keywords', 'No Keywords', 'Select Another'];
             i.reply({ content, components: [row]});
 
-            const coll = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1});
+            const coll = i.channel.createMessageComponentCollector({ filter, time: 15000, max: 1});
 
             coll.on('collect', async i => {
                 if(i.customId === 'Stop Interaction'){
@@ -76,15 +77,15 @@ async function followAccount(message){
                     i.reply('Please enter the keyword you are looking for');
                     let keywordFilter = m => m.author.id != '815660797236740121';
                     let keywords = [];
-                    awaitKeywords(message, keywordFilter, account, keywords);
+                    awaitKeywords(interaction, keywordFilter, account, keywords);
                 } else if(i.customId === 'No Keywords'){
-                    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+                    const user = structures.registeredUsers.find(u => u.id == interaction.user.id);
                     user.followedAccounts.set(account, []);
                     database.updateFollowedAccount(user);
                     i.reply(`Followed ${account} with no tracked keywords!`);
                 }
                 else{
-                    followAccount(message);
+                    followAccount(interaction);
                 }
             });
         }
@@ -92,5 +93,5 @@ async function followAccount(message){
 }
 
 export {
-    followAccount
+    follow
 }

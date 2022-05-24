@@ -2,9 +2,9 @@ import structures from '../data/structures.js';
 import {MessageActionRow, MessageButton} from 'discord.js';
 import database from '../helperFunctions/database.js';
 
-async function unfollowAccount(message){
+async function unfollow(interaction){
     const rows = [new MessageActionRow()];
-    const user = structures.registeredUsers.find(u => u.id == message.author.id);
+    const user = structures.registeredUsers.find(u => u.id == interaction.user.id);
     let labels = [];
     
     let rowIndex = 0;
@@ -34,23 +34,23 @@ async function unfollowAccount(message){
     labels.push('Stop Interaction');
     
     let content  = `Click on the account you'd like to unfollow: `;
-    message.reply({ content, components: rows });
+    interaction.reply({ content, components: rows });
 
-    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === message.author.id;
-    const collector = message.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    const filter = i => i.customId === labels.find(l => l == i.customId) && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
 
     collector.on('collect', async i => {
         if(i.customId === 'Stop Interaction'){
             await i.reply(`Interaction stopped!`);
+        } else{
+            user.followedAccounts.delete(i.customId);
+            database.updateFollowedAccount(user);
+            i.reply(`Successfully unfollowed ${i.customId}`);
         }
-        
-        user.followedAccounts.delete(i.customId);
-        database.updateFollowedAccount(user);
-        i.reply(`Successfully unfollowed ${i.customId}`);
     });
 }
 
 export{
-    unfollowAccount
+    unfollow
 }
 

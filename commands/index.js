@@ -1,15 +1,17 @@
-import { unfollowAccount } from './unfollow.js';
-import { followAccount } from './follow.js';
+import { unfollow } from './unfollow.js';
+import { follow } from './follow.js';
 import { deregister } from './deregister.js';
 import { notifications } from './notifications.js'
 import { keywords } from './keywords.js'; 
 import { help } from './help.js';
+import { add } from './addAccount.js';
 
 export default {
-    unfollowAccount,
-    followAccount,
+    unfollow,
+    follow,
     deregister,
     notifications,
     keywords,
-    help
+    help,
+    add
 }

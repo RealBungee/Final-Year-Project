@@ -2,8 +2,8 @@ import structures from "../data/structures.js";
 import database from "../helperFunctions/database.js";
 import { MessageActionRow, MessageButton } from 'discord.js';
 
-function notifications(m){
-    const index = structures.registeredUsers.findIndex(u => { return u.id === m.author.id; });
+function notifications(interaction){
+    const index = structures.registeredUsers.findIndex(u => { return u.id === interaction.user.id; });
     const notifications = structures.registeredUsers[index].notifications;
     const label = notifications ? 'Disable Notifications' : 'Enable Notifications';
     const row  = new MessageActionRow()
@@ -19,10 +19,10 @@ function notifications(m){
     );
 
     let content = notifications ? 'Enabled' : 'Disabled';
-    m.reply({ content: `Notifications are currently ${content}.\nClick on the "${label}" button to ${label} or click on "Stop" button to stop interaction.`, components: [row] })
+    interaction.reply({ content: `Notifications are currently ${content}.\nClick on the "${label}" button to ${label} or click on "Stop" button to stop interaction.`, components: [row] })
     
-    const filter = i => i.customId === label || i.customId === 'Stop' && i.user.id === m.author.id;
-    const collector = m.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    const filter = i => i.customId === label || i.customId === 'Stop' && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
 
     collector.on('collect', async i => {
         if(i.customId === label){

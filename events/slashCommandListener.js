@@ -9,9 +9,12 @@ async function slashCommandListener(client){
         if(i.commandName === 'echo'){
             let input = i.options.get('input');
             await i.reply(`${input.value}`);
+            return;
         }
-        
-        commands[i.commandName](i);
+
+        if(i.channel.type === 'DM') {
+            commands[i.commandName](i);
+        };
     });
 }
 
