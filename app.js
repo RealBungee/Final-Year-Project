@@ -42,8 +42,9 @@ client.on('ready', async () => {
     twitter.checkForNewTweets(t);
   }
 
-  console.log(`Starting the private message listener.`);
-  events.messageListener(client);
+  //deprecated
+  //console.log(`Starting the private message listener.`);
+  //events.messageListener(client);
   console.log(`Starting the slash command listener.`);
   events.slashCommandListener(client);
 });
