@@ -5,6 +5,7 @@ import { notifications } from './notifications.js'
 import { keywords } from './keywords.js'; 
 import { help } from './help.js';
 import { add } from './addAccount.js';
+import { trading } from './enableTrading.js';
 
 export default {
     unfollow,
@@ -13,5 +14,6 @@ export default {
     notifications,
     keywords,
     help,
-    add
+    add,
+    trading
 }
