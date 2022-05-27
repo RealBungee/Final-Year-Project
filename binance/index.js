@@ -1,11 +1,11 @@
 import { Spot } from '@binance/connector';
 
-async function getAccountInformation(apiKey, apiSecret, interaction){
+async function connect(apiKey, apiSecret, interaction){
     const client = new Spot(apiKey, apiSecret);
     client.account()
         .then( response => {
             interaction.reply('Succefully connected to binance!');
-            return response.data
+            console.log(response.data);
         })
         .catch(err => {
             console.log(err.response.headers);
@@ -16,5 +16,5 @@ async function getAccountInformation(apiKey, apiSecret, interaction){
 }
 
 export default {
-    getAccountInformation
+    connect
 }

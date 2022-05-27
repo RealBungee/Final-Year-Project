@@ -85,7 +85,7 @@ async function follow(interaction){
                     i.reply(`Followed ${account} with no tracked keywords!`);
                 }
                 else{
-                    followAccount(interaction);
+                    follow(i);
                 }
             });
         }

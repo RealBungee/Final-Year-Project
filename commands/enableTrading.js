@@ -7,7 +7,7 @@ async function trading(interaction){
     let secret = interaction.options.get('secret').value;
 
     try{
-        await binance.getAccountInformation(key, secret, interaction);
+        binance.connect(key, secret, interaction);
     } catch(err){
         interaction.reply(`Error establishing connection: ${err}`);
     }
